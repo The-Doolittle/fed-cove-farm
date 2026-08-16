@@ -59,3 +59,6 @@ Local image paths are wired in per your folder:
 - Small icon (nav bar + browser favicon): `img/fed-cove-icon.jpg`
 
 The other photos (perennials, market locations, baked goods teaser image on the old grid) are still hotlinked from Google's CDN from the original site — swap those in too whenever convenient, same as noted earlier in this README.
+
+## Mobile nav (side drawer)
+Below 820px window width, the top nav and "More" pill disappear and a hamburger button appears instead. Tapping it slides in a right-hand drawer with all nav links (including More) stacked vertically, plus a dimmed backdrop behind it. It closes on: tapping the backdrop, the × button, any link, the Escape key, or resizing the window back past 820px. This is a pure width-based breakpoint (matches the existing responsive breakpoint used elsewhere on the site) — it reacts to how wide the browser window is, not the device's physical orientation, so resizing a desktop browser window narrow enough will trigger it too.

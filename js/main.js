@@ -2,6 +2,46 @@ document.addEventListener('DOMContentLoaded', function () {
   var y = document.getElementById('year');
   if (y) y.textContent = new Date().getFullYear();
 
+  // Mobile nav drawer: opens on hamburger tap, closes on scrim click,
+  // close button, link click, Escape, or resizing back to desktop.
+  var toggle = document.querySelector('.nav-toggle');
+  var drawer = document.querySelector('.nav-drawer');
+  var scrim = document.querySelector('.nav-scrim');
+  var closeBtn = document.querySelector('.nav-drawer-close');
+
+  if (toggle && drawer && scrim) {
+    var drawerLinks = drawer.querySelectorAll('a');
+
+    function openDrawer() {
+      drawer.classList.add('is-open');
+      scrim.classList.add('is-open');
+      drawer.setAttribute('aria-hidden', 'false');
+      toggle.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('nav-open');
+    }
+
+    function closeDrawer() {
+      drawer.classList.remove('is-open');
+      scrim.classList.remove('is-open');
+      drawer.setAttribute('aria-hidden', 'true');
+      toggle.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('nav-open');
+    }
+
+    toggle.addEventListener('click', openDrawer);
+    scrim.addEventListener('click', closeDrawer);
+    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+    drawerLinks.forEach(function (link) {
+      link.addEventListener('click', closeDrawer);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeDrawer();
+    });
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 820) closeDrawer();
+    });
+  }
+
   // Testimonial carousel: fades between cards, optional auto-rotate,
   // pauses on hover/focus, and respects reduced-motion preference.
   var carousel = document.querySelector('.testimonial-carousel');
