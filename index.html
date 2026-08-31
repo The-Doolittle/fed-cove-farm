@@ -7,7 +7,7 @@
   <meta name="description" content="Fed Cove Farm and Nursery &mdash; eighth-generation growers in Cowee, NC offering landscape perennials and baked goods.">
   <link rel="icon" href="img/fed-cove-icon.jpg">
   <meta property="og:image" content="img/fed-cove-logo-large.png">
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=19">
 </head>
 <body>
   <header class="site-header">
@@ -50,7 +50,9 @@
     </div>
   </div>
   <section class="hero">
-    <img class="hero-media" src="img/fed-cove-farm-01.jpg" alt="Fed Cove Farm and Nursery">
+    <video class="hero-media" autoplay muted loop playsinline poster="img/fed-cove-farm-01.jpg" aria-label="Aerial flyover of Fed Cove Farm">
+      <source src="assets/top-down-flyover.mp4" type="video/mp4">
+    </video>
     <div class="hero-copy">
       <div class="hero-card">
         <p class="eyebrow">Cowee, North Carolina</p>
@@ -58,10 +60,11 @@
         <p>As eighth-generation stewards of land in the scenic mountains of North Carolina, we're dedicated to delivering top-tier products &mdash; from landscape perennials to delectable baked goods.</p>
       </div>
       <div class="hero-card hero-card--order">
-        <p class="eyebrow">No Judgment</p>
-        <h2>You know why you&rsquo;re here.</h2>
-        <p>Straight to the good stuff.</p>
-        <a class="btn" href="https://www.hotplate.com/fedcovefarmandnursery" target="_blank" rel="noopener">Order Now</a>
+        <h2>This way to the bakery.</h2>
+        <a class="btn btn--arrow" href="https://www.hotplate.com/fedcovefarmandnursery" target="_blank" rel="noopener">
+          <span>Order Now</span>
+          <span aria-hidden="true">→</span>
+        </a>
       </div>
     </div>
   </section>
@@ -71,33 +74,68 @@
         <p class="eyebrow">What We Do</p>
         <h2 class="section-title">Grown, gathered, and baked on the farm</h2>
       </div>
-      <div class="grid-4" style="grid-template-columns:repeat(3,1fr);">
-        <a class="category-card" href="landscaping.html">
-          <img src="https://lh3.googleusercontent.com/sitesv/AG8ngQXa5dJdFFcpAL80ODGoaG7MhrMyYHgWq6Iye7WVlh_bAf3447qdDbr6-_fNHGwzz6i6N4_v-PgbWkYTnkipgYf1670KBkuJHUGqkVKgHoGVm1mqe8ICB6Jk7XFmUTteQjmZH1GiylZ-Q4ANrm-RarpVTczXXpXmSYyF-vNLLreyBeEAb_2WDpZcEAyXTc98WPH3QxgAkSOLK4jmJGK6GJUSPVycG4AHFAnKI17l=w800" alt="Landscape perennials">
+      <div class="grid-4" style="grid-template-columns:repeat(2,1fr);">
+        <a class="category-card category-card--featured" href="landscaping.html">
+          <img src="img/fed-cove-farm-03.jpg" alt="Landscape perennials">
           <div class="label">Landscape Perennials</div>
         </a>
-        <a class="category-card" href="baked-goods.html">
-          <img src="https://lh3.googleusercontent.com/sitesv/AG8ngQXL4VahcKCquaR1yPgjNaRO7fckRZfyo0tS6A9NxUSm1xLZ5lr9XR56gecHhGjs4FHITJqqxazVkVVVcKjYE6n_p-LjyXKIbS2GH9IE57wh1yc9kxp-5wS5YD7q165h6OLZUP3xOmPeqOq3xLSjpFwk8dSb7bPyvgJ1vSorNVQSb8vOvF2hPQI-P2_DxdvB1V-QkMjNxl5rJf3-k1zeoj5aEJFL1ENsMxNQcQ3VBL0=w800" alt="Baked goods">
+        <a class="category-card category-card--featured" href="baked-goods.html">
+          <img src="img/sourdough.jpg" alt="Baked goods">
           <div class="label">Baked Goods</div>
         </a>
-        <a class="category-card category-card--more" href="more.html">
-          <div class="category-card--more-inner">
-            <span class="eyebrow">Seasonal &amp; Occasional</span>
-            <div class="label">More From The Farm</div>
-          </div>
+      </div>
+      <div style="margin-top:24px; text-align:center;">
+        <a class="btn btn-outline btn--arrow" href="more.html">
+          <span>Occasional Offerings (Limited)</span>
+          <span aria-hidden="true">&rarr;</span>
         </a>
       </div>
     </div>
   </section>
 
-  <section id="map">
+  <section id="calendar-placeholder">
     <div class="wrap">
       <div class="section-head">
-        <p class="eyebrow">Find The Farm</p>
-        <h2 class="section-title">Cowee, NC 28734</h2>
+        <p class="eyebrow">Upcoming</p>
+        <h2 class="section-title">Farm calendar</h2>
       </div>
-      <div class="map-frame">
-        <iframe loading="lazy" src="https://maps-api-ssl.google.com/maps?hl=en-US&amp;ll=35.261207,-83.407933&amp;output=embed&amp;q=Cowee,+NC+28734,+USA+(Cowee)&amp;z=14" title="Map of Cowee, NC"></iframe>
+      <div class="calendar-placeholder" aria-label="Calendar placeholder for upcoming farm events">
+        <div class="calendar-placeholder__header">
+          <span class="calendar-placeholder__month">September</span>
+          <span class="calendar-placeholder__badge">Coming soon</span>
+        </div>
+        <div class="calendar-placeholder__grid">
+          <div class="calendar-placeholder__day is-muted">
+            <span class="day-name">Mon</span>
+            <span class="day-number">2</span>
+          </div>
+          <div class="calendar-placeholder__day is-muted">
+            <span class="day-name">Tue</span>
+            <span class="day-number">3</span>
+          </div>
+          <div class="calendar-placeholder__day is-active">
+            <span class="day-name">Wed</span>
+            <span class="day-number">4</span>
+            <small>Market</small>
+          </div>
+          <div class="calendar-placeholder__day is-muted">
+            <span class="day-name">Thu</span>
+            <span class="day-number">5</span>
+          </div>
+          <div class="calendar-placeholder__day is-muted">
+            <span class="day-name">Fri</span>
+            <span class="day-number">6</span>
+          </div>
+          <div class="calendar-placeholder__day is-muted">
+            <span class="day-name">Sat</span>
+            <span class="day-number">7</span>
+          </div>
+          <div class="calendar-placeholder__day is-muted">
+            <span class="day-name">Sun</span>
+            <span class="day-number">8</span>
+          </div>
+        </div>
+        <p class="calendar-placeholder__note">This space will hold the farm’s public event calendar once it’s ready.</p>
       </div>
     </div>
   </section>
@@ -172,6 +210,6 @@
       </span>
     </div>
   </footer>
-  <script src="js/main.js?v=3"></script>
+  <script src="js/main.js?v=19"></script>
 </body>
 </html>

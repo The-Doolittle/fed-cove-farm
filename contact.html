@@ -7,7 +7,7 @@
   <meta name="description" content="Fed Cove Farm and Nursery &mdash; eighth-generation growers in Cowee, NC offering landscape perennials and baked goods.">
   <link rel="icon" href="img/fed-cove-icon.jpg">
   <meta property="og:image" content="img/fed-cove-logo-large.png">
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=19">
 </head>
 <body>
   <header class="site-header">
@@ -51,11 +51,56 @@
   </div>
   <section class="hero">
     <img class="hero-media" src="img/fed-cove-farm-01.jpg" alt="Fed Cove Farm and Nursery">
-    <div class="hero-copy">
-      <div class="hero-card">
+    <div class="hero-copy hero-copy--top">
+      <div class="hero-card hero-card--form">
         <p class="eyebrow">Get In Touch</p>
-        <h1>From our door to yours.</h1>
+        <h1>Send us a message</h1>
         <p>Questions about availability, custom orders, or where to find us next? We&rsquo;d love to hear from you.</p>
+        <form class="contact-form" action="https://formsubmit.co/hello@fedcove.farm" method="POST">
+          <input type="hidden" name="_subject" value="New inquiry from the Fed Cove Farm website">
+          <input type="hidden" name="_template" value="table">
+          <div class="hp-field">
+            <label for="cf-honey">Leave this field empty</label>
+            <input type="text" id="cf-honey" name="_honey" tabindex="-1" autocomplete="off">
+          </div>
+          <div class="form-field">
+            <label for="cf-name">Name</label>
+            <input type="text" id="cf-name" name="name" autocomplete="name" required>
+          </div>
+          <div class="form-field">
+            <label for="cf-email">Email</label>
+            <input type="email" id="cf-email" name="email" autocomplete="email" required>
+          </div>
+          <div class="form-field">
+            <label for="cf-phone">Phone (optional)</label>
+            <input type="tel" id="cf-phone" name="phone" autocomplete="tel">
+          </div>
+          <div class="form-field">
+            <label for="cf-message">Message</label>
+            <textarea id="cf-message" name="message" rows="4" required></textarea>
+          </div>
+          <button class="btn" type="submit">Send Message</button>
+        </form>
+      </div>
+      <div class="hero-card hero-card--reach">
+        <p class="eyebrow">Reach Us</p>
+        <div class="reach-list">
+          <div class="reach-item">
+            <p class="reach-label">Call</p>
+            <p class="reach-value">(828) 371-8018</p>
+            <a class="reach-link" href="tel:+18283718018">Call the farm &rarr;</a>
+          </div>
+          <div class="reach-item">
+            <p class="reach-label">Email</p>
+            <p class="reach-value">hello@fedcove.farm</p>
+            <a class="reach-link" href="mailto:hello@fedcove.farm">Send an email &rarr;</a>
+          </div>
+          <div class="reach-item">
+            <p class="reach-label">Visit</p>
+            <p class="reach-value">Cowee Valley &middot; Franklin, NC</p>
+            <a class="reach-link" href="index.html#map">See map &rarr;</a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -73,8 +118,8 @@
         </div>
         <div class="contact-card">
           <p class="eyebrow">Email</p>
-          <p class="value">fedcove.farm.nursery@gmail.com</p>
-          <a class="btn" href="mailto:fedcove.farm.nursery@gmail.com">Send an email</a>
+          <p class="value">hello@fedcove.farm</p>
+          <a class="btn" href="mailto:hello@fedcove.farm">Send an email</a>
         </div>
         <div class="contact-card">
           <p class="eyebrow">Visit</p>
@@ -131,6 +176,6 @@
       </span>
     </div>
   </footer>
-  <script src="js/main.js?v=3"></script>
+  <script src="js/main.js?v=19"></script>
 </body>
 </html>

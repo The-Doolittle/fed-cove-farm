@@ -42,57 +42,63 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Testimonial carousel: fades between cards, optional auto-rotate,
-  // pauses on hover/focus, and respects reduced-motion preference.
-  var carousel = document.querySelector('.testimonial-carousel');
-  if (!carousel) return;
+  // Auto-rotating carousels: fades between slides, pauses on hover/focus,
+  // and respects reduced-motion preference.
+  var carousels = document.querySelectorAll('.testimonial-carousel');
+  if (!carousels.length) return;
 
-  var cards = Array.prototype.slice.call(carousel.querySelectorAll('.testimonial-card'));
-  var dots = Array.prototype.slice.call(carousel.querySelectorAll('.testimonial-dot'));
-  if (cards.length === 0) return;
+  function initCarousel(carousel) {
+    var slides = Array.prototype.slice.call(carousel.querySelectorAll('.testimonial-card'));
+    var dots = Array.prototype.slice.call(carousel.querySelectorAll('.testimonial-dot'));
+    if (slides.length === 0) return;
 
-  var current = 0;
-  var intervalMs = parseInt(carousel.getAttribute('data-autorotate'), 10) || 6000;
-  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var timer = null;
+    var current = 0;
+    var intervalMs = parseInt(carousel.getAttribute('data-autorotate'), 10) || 6000;
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var timer = null;
 
-  function show(index) {
-    cards.forEach(function (card, i) {
-      card.classList.toggle('is-active', i === index);
-    });
+    function show(index) {
+      slides.forEach(function (slide, i) {
+        slide.classList.toggle('is-active', i === index);
+      });
+      if (dots.length) {
+        dots.forEach(function (dot, i) {
+          dot.classList.toggle('is-active', i === index);
+        });
+      }
+      current = index;
+    }
+
+    function next() {
+      show((current + 1) % slides.length);
+    }
+
+    function start() {
+      if (prefersReducedMotion || slides.length < 2) return;
+      stop();
+      timer = setInterval(next, intervalMs);
+    }
+
+    function stop() {
+      if (timer) clearInterval(timer);
+      timer = null;
+    }
+
     dots.forEach(function (dot, i) {
-      dot.classList.toggle('is-active', i === index);
+      dot.addEventListener('click', function () {
+        show(i);
+        start();
+      });
     });
-    current = index;
+
+    carousel.addEventListener('mouseenter', stop);
+    carousel.addEventListener('mouseleave', start);
+    carousel.addEventListener('focusin', stop);
+    carousel.addEventListener('focusout', start);
+
+    show(0);
+    start();
   }
 
-  function next() {
-    show((current + 1) % cards.length);
-  }
-
-  function start() {
-    if (prefersReducedMotion || cards.length < 2) return;
-    stop();
-    timer = setInterval(next, intervalMs);
-  }
-
-  function stop() {
-    if (timer) clearInterval(timer);
-    timer = null;
-  }
-
-  dots.forEach(function (dot, i) {
-    dot.addEventListener('click', function () {
-      show(i);
-      start();
-    });
-  });
-
-  carousel.addEventListener('mouseenter', stop);
-  carousel.addEventListener('mouseleave', start);
-  carousel.addEventListener('focusin', stop);
-  carousel.addEventListener('focusout', start);
-
-  show(0);
-  start();
+  carousels.forEach(initCarousel);
 });
