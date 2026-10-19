@@ -21,7 +21,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.html import strip_tags
 
-from .models import CalendarSyncRun, Event
+from .models import CalendarSyncRun, DismissedGoogleEvent, Event
 
 log = logging.getLogger(__name__)
 
@@ -161,10 +161,15 @@ def pull():
     seen = set()
     with transaction.atomic():
         existing = {e.google_id: e for e in Event.objects.exclude(google_id="")}
+        dismissed = set(DismissedGoogleEvent.objects.values_list("google_id", flat=True))
         for data in fetched:
             gid = data.pop("id")
             seen.add(gid)
+            if gid in dismissed:
+                continue  # deleted on the site; don't re-import
             event = existing.get(gid)
+            if event is not None and not event.sync_with_google:
+                continue  # edited on the site; the site's version wins
             if event is None:
                 event = Event(google_id=gid, source=Event.SOURCE_GOOGLE)
                 created += 1
@@ -185,12 +190,16 @@ def pull():
         stale = (
             Event.objects.exclude(google_id="")
             .exclude(google_id__in=seen)
-            .filter(start__gte=tmin, start__lte=tmax)
+            .filter(start__gte=tmin, start__lte=tmax, sync_with_google=True)
         )
         for event in stale:
             event._from_sync = True
             event.delete()
             removed += 1
+
+        DismissedGoogleEvent.objects.exclude(google_id__in=seen).filter(
+            dismissed_at__lt=timezone.now() - timedelta(days=PAST_DAYS)
+        ).delete()
 
     if current == "api":
         _retry_failed_pushes()

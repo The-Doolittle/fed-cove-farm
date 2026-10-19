@@ -15,8 +15,15 @@ class EventsConfig(AppConfig):
                 google_calendar.push(instance)
 
         def on_delete(sender, instance, **kwargs):
-            if not getattr(instance, "_from_sync", False):
+            if getattr(instance, "_from_sync", False) or not instance.google_id:
+                return
+            if google_calendar.mode() == "api":
                 google_calendar.delete_remote(instance.google_id)
+            else:
+                # Read-only sync: remember it so the next sync doesn't bring it back.
+                from .models import DismissedGoogleEvent
+
+                DismissedGoogleEvent.objects.get_or_create(google_id=instance.google_id)
 
         post_save.connect(on_save, sender=Event, weak=False, dispatch_uid="event_push")
         post_delete.connect(on_delete, sender=Event, weak=False, dispatch_uid="event_delete_remote")

@@ -22,6 +22,12 @@ class Event(models.Model):
     # Google event id (API mode) or iCal UID[+instance] (ICS mode). Empty = not on Google yet.
     google_id = models.CharField(max_length=1024, blank=True, db_index=True, editable=False)
     sync_error = models.TextField(blank=True, editable=False)
+    sync_with_google = models.BooleanField(
+        "Keep updating from Google Calendar",
+        default=True,
+        help_text="Unticked automatically when you edit this event here, so your changes stick. "
+        "Tick it again to go back to Google Calendar's version.",
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -29,6 +35,29 @@ class Event(models.Model):
 
     def __str__(self):
         return self.title
+
+    @property
+    def from_google(self):
+        return self.source == self.SOURCE_GOOGLE
+
+    @property
+    def when_label(self):
+        start, end = timezone.localtime(self.start), timezone.localtime(self.effective_end)
+        day = f"{start:%a %b} {start.day}"
+        if self.all_day:
+            last = end - timedelta(days=1)
+            return day if last.date() <= start.date() else f"{day} – {last:%a %b} {last.day}"
+
+        def clock(t):
+            return f"{t:%I:%M%p}".lstrip("0").replace(":00", "").lower()
+
+        return f"{day} · {clock(start)}–{clock(end)}"
+
+    @property
+    def status_label(self):
+        if not self.from_google:
+            return "Added here"
+        return "From Google" if self.sync_with_google else "From Google · edited here"
 
     @property
     def effective_end(self):
@@ -105,3 +134,10 @@ class CalendarSyncRun(models.Model):
 
     class Meta:
         ordering = ["-ran_at"]
+
+
+class DismissedGoogleEvent(models.Model):
+    """A Google event the farm deleted on the site, so the next sync doesn't bring it back."""
+
+    google_id = models.CharField(max_length=1024, unique=True)
+    dismissed_at = models.DateTimeField(auto_now_add=True)

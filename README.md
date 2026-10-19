@@ -50,15 +50,24 @@ After changing models: `docker compose run --rm -u $(id -u) -v "$PWD":/app web p
   step-by-step instructions are on that page.
 - **Forms** — contact-form messages (also emailed).
 
-## Google Calendar
+## Calendar
 
-Set `GOOGLE_CALENDAR_ICS_URL` in `.env` to the farm calendar's **Secret address in iCal format**
-(Google Calendar → Settings → the calendar → Integrate calendar) and restart. Events added in Google
-Calendar — e.g. from a phone — appear on the site within `CALENDAR_SYNC_MINUTES`. Events added in the
-admin show on the site only. Events marked **Private** in Google never appear; repeating events are expanded.
+The farm adds and edits events in admin → **Events** (phone-friendly: date + time boxes, "repeat every
+week until…" for regular markets, Copy for one-offs, Upcoming/Past filter).
 
-Two-way sync is also supported (`GOOGLE_CALENDAR_ID` + a service-account key in `./secrets/`; see
-`events/google_calendar.py`), but isn't set up or tested against a real account yet.
+**Google Calendar import (optional).** Set `GOOGLE_CALENDAR_ICS_URL` in `.env` to the farm calendar's
+*Secret address in iCal format* (Google Calendar → Settings → the calendar → Integrate calendar). Events
+added in Google — e.g. from a phone — are imported into Events within `CALENDAR_SYNC_MINUTES` as ordinary
+editable events:
+
+- changes made later in Google update the site's copy, **until** the farm edits that event in the admin —
+  then their version is kept ("From Google · edited here"; tick *Keep updating from Google Calendar* to undo);
+- events deleted in Google disappear from the site (unless edited here);
+- events deleted in the admin stay deleted and aren't re-imported;
+- events marked **Private** in Google are never imported; repeating events are expanded.
+
+Admin → **Calendar sync** shows the last runs and has "Sync now". (Two-way sync with a service account
+also exists in `events/google_calendar.py` but isn't set up or tested against a real account.)
 
 ## Hotplate
 
