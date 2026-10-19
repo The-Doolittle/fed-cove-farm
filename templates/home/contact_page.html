@@ -1,33 +1,35 @@
 {% extends "base.html" %}
-{% load static wagtailimages_tags %}
 {% block content %}
+{% include "includes/hero.html" %}
 {% with fs=settings.home.FarmSettings %}
-<section class="hero">
-  {% if page.hero_image %}{% image page.hero_image width-1800 format-webp class="hero-media" fetchpriority="high" %}{% else %}<img class="hero-media" src="{% static 'img/fed-cove-farm-01.jpg' %}" alt="Fed Cove Farm and Nursery">{% endif %}
-  <div class="hero-copy hero-copy--top">
-    <div class="hero-card hero-card--form">
-      {% if page.hero_eyebrow %}<p class="eyebrow">{{ page.hero_eyebrow }}</p>{% endif %}
-      <h1>{{ page.hero_title|default:page.title }}</h1>
-      {% if page.hero_text %}<p>{{ page.hero_text }}</p>{% endif %}
+<section class="contact">
+  <div class="wrap contact-layout">
+    <div class="contact-panel contact-main">
+      <p class="eyebrow">Message the farm</p>
       <form class="contact-form" action="{{ page.url }}" method="post" novalidate>
         {% csrf_token %}
-        {% for field in form %}
-          {% if field.is_hidden %}{{ field }}{% elif field.name == page.HONEYPOT %}
-          <div class="hp-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</div>
-          {% else %}
-          <div class="form-field">
-            <label for="{{ field.id_for_label }}">{{ field.label }}{% if not field.field.required %} (optional){% endif %}</label>
-            {{ field }}
-            {% for error in field.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
-          </div>
-          {% endif %}
-        {% endfor %}
-        <button class="btn" type="submit">Send Message</button>
+        <div class="form-grid">
+          {% for field in form %}
+            {% if field.is_hidden %}{{ field }}
+            {% elif field.name == page.HONEYPOT %}
+              <div class="hp-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</div>
+            {% else %}
+              <div class="form-field{% if not field.field.widget.input_type %} form-field--wide{% endif %}">
+                <label for="{{ field.id_for_label }}">{{ field.label }}{% if not field.field.required %} <span>(optional)</span>{% endif %}</label>
+                {{ field }}
+                {% for error in field.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <div class="contact-form__footer">
+          <button class="btn" type="submit">Send Message</button>
+          <p>We usually reply within a day or two.</p>
+        </div>
       </form>
     </div>
-    {% include "includes/reach_card.html" %}
+    {% include "includes/contact_aside.html" %}
   </div>
 </section>
-{% include "includes/contact_sections.html" %}
 {% endwith %}
 {% endblock %}

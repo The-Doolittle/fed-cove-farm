@@ -43,16 +43,13 @@ After changing models: `docker compose run --rm -u $(id -u) -v "$PWD":/app web p
 
 ## Google Calendar
 
-Two ways to connect; set one in `.env` and restart:
+Set `GOOGLE_CALENDAR_ICS_URL` in `.env` to the farm calendar's **Secret address in iCal format**
+(Google Calendar → Settings → the calendar → Integrate calendar) and restart. Events added in Google
+Calendar — e.g. from a phone — appear on the site within `CALENDAR_SYNC_MINUTES`. Events added in the
+admin show on the site only. Events marked **Private** in Google never appear; repeating events are expanded.
 
-1. **Two-way (recommended).** Google Cloud project → enable Calendar API → create a service account → download its JSON
-   key to `./secrets/google-service-account.json`. In Google Calendar, share the farm calendar with the service account's
-   email ("Make changes to events"), then set `GOOGLE_CALENDAR_ID` (Calendar settings → Integrate calendar → Calendar ID).
-   Events added on the phone show on the site; events added in the admin go to Google.
-2. **One-way (quick).** Set `GOOGLE_CALENDAR_ICS_URL` to the calendar's *Secret address in iCal format*.
-   Phone → site works; admin-added events stay site-only.
-
-Events marked **Private** in Google never appear on the site. Repeating events are expanded.
+Two-way sync is also supported (`GOOGLE_CALENDAR_ID` + a service-account key in `./secrets/`; see
+`events/google_calendar.py`), but isn't set up or tested against a real account yet.
 
 ## API
 

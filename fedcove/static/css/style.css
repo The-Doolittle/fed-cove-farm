@@ -213,7 +213,7 @@ body.nav-open{overflow:hidden;}
    isolation:isolate contains .hero-copy's z-index to inside this section --
    otherwise, whenever a card grows taller than the hero image, the excess
    paints on top of the next section instead of pushing it down. */
-.hero{position:relative; isolation:isolate;}
+.hero{position:relative; isolation:isolate; padding:0;}
 .hero-media{
   width:100%; height:52vh; min-height:320px; max-height:560px;
   object-fit:cover;
@@ -295,22 +295,7 @@ body.nav-open{overflow:hidden;}
   transform:translateY(-1px);
 }
 
-/* Contact page: form card + reach card sit side by side but are very
-   different heights, so on wide screens don't stretch them to match. */
-@media (min-width:901px){
-  .hero-copy--top{align-items:flex-start;}
-}
-.hero-card--form{
-  max-width:640px;
-  flex:1 1 420px;
-  justify-content:flex-start;
-}
-.hero-card--form h1{
-  font-size:clamp(1.5rem, 2.6vw, 2rem);
-  margin:0 0 14px;
-}
-.hero-card--form p{margin:0 0 18px;}
-.contact-form{display:flex; flex-direction:column; gap:14px;}
+/* --- Form fields (contact + order forms) --- */
 .form-field{display:flex; flex-direction:column; gap:6px;}
 .form-field label{
   font-family:var(--font-body);
@@ -350,56 +335,12 @@ body.nav-open{overflow:hidden;}
   border:0;
 }
 
-/* Reach Us: a compact sidebar beside the form when there's room. The full
-   Call/Email/Visit card section below is always shown regardless of width
-   (see the plain section after the hero in contact.html) -- the two are
-   fully independent, so there's no breakpoint-matching between them to
-   get wrong. */
-.hero-card--reach{display:none;}
-@media (min-width:901px){
-  .hero-card--reach{
-    display:flex;
-    flex-direction:column;
-    justify-content:flex-start;
-    max-width:300px;
-    flex:0 1 280px;
-  }
-}
-.reach-list{display:flex; flex-direction:column; gap:16px; margin-top:6px;}
-.reach-item{padding-bottom:16px; border-bottom:1px solid var(--line);}
-.reach-item:last-child{padding-bottom:0; border-bottom:none;}
-.reach-label{
-  font-family:var(--font-body);
-  text-transform:uppercase;
-  letter-spacing:0.1em;
-  font-size:0.68rem;
-  font-weight:700;
-  color:var(--gold);
-  margin:0 0 4px;
-}
-.reach-value{
-  font-family:var(--font-display);
-  font-weight:500;
-  font-size:1rem;
-  color:var(--forest);
-  margin:0 0 6px;
-}
-.reach-link{
-  font-family:var(--font-body);
-  font-size:0.86rem;
-  font-weight:600;
-  color:var(--moss);
-  text-decoration:none;
-}
-.reach-link:hover{text-decoration:underline;}
 
 @media (max-width:640px){
   section{padding:48px 0;}
   .hero-media{height:36vh; min-height:260px;}
   .hero-copy{padding:0 18px; gap:12px; flex-direction:column; align-items:stretch;}
   .hero-card{padding:22px 18px; min-height:0; width:100%; max-width:none;}
-  /* Extra breathing room below the submit button on the contact form card. */
-  .hero-card--form{padding-bottom:152px;}
   .btn--arrow{margin-top:2px;}
   .section-head{margin-bottom:24px;}
   .grid-4{grid-template-columns:1fr;}
@@ -731,18 +672,6 @@ footer a{text-decoration:underline; text-underline-offset:2px;}
 .follow-card p{margin:0 0 14px; color:var(--forest-soft); font-size:0.94rem;}
 
 /* --- Contact page --- */
-.contact-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
-@media (max-width:820px){.contact-grid{grid-template-columns:1fr;}}
-.contact-card{
-  border:1px solid var(--line); border-radius:4px; background:var(--paper);
-  padding:26px 24px;
-  display:flex; flex-direction:column; gap:10px;
-}
-.contact-card .eyebrow{margin:0;}
-.contact-card .value{
-  font-family:var(--font-display); font-weight:500; font-size:1.15rem; color:var(--forest);
-}
-.contact-card .btn{align-self:flex-start; margin-top:4px;}
 
 /* --- Menu grid --- */
 .menu-grid{
@@ -1024,3 +953,65 @@ footer a{text-decoration:underline; text-underline-offset:2px;}
 .gallery-item img{width:100%; aspect-ratio:1; object-fit:cover; border-radius:4px; transition:transform .2s ease;}
 .gallery-item a:hover img{transform:scale(1.02);}
 .photo-marquee--block{margin:0 -24px;}
+
+/* --- Contact page --- */
+.contact-layout{
+  display:grid;
+  grid-template-columns:minmax(0, 1.55fr) minmax(0, 1fr);
+  grid-template-areas:"main reach" "main social";
+  grid-template-rows:auto 1fr;
+  gap:20px 24px;
+  align-items:start;
+}
+.contact-main{grid-area:main;}
+.contact-reach{grid-area:reach;}
+.contact-social{grid-area:social;}
+.contact-panel{
+  background:var(--paper); border:1px solid var(--line); border-radius:4px;
+  padding:30px 32px; box-shadow:0 16px 28px -24px rgba(37,54,31,0.38);
+}
+.contact-panel .eyebrow{margin-bottom:16px;}
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px 18px;}
+.form-field--wide{grid-column:1 / -1;}
+.form-field label span{text-transform:none; letter-spacing:0; font-weight:500; opacity:0.75;}
+.form-field textarea{height:170px; min-height:110px;}
+.form-field input, .form-field textarea{width:100%; background:var(--cream);}
+.contact-form__footer{display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-top:20px;}
+.contact-form__footer .btn{border:none; cursor:pointer; font:inherit; font-weight:600; font-size:0.92rem;}
+.contact-form__footer p{margin:0; font-size:0.88rem; color:var(--forest-soft);}
+.contact-thanks .section-title{margin-bottom:10px;}
+.contact-thanks .btn{margin-top:12px;}
+
+.reach-rows{list-style:none; margin:0; padding:0;}
+.reach-rows li + li{border-top:1px solid var(--line);}
+.reach-row{
+  display:flex; align-items:center; gap:14px; padding:13px 0;
+  text-decoration:none; color:var(--forest);
+}
+.reach-rows li:first-child .reach-row{padding-top:0;}
+.reach-rows li:last-child .reach-row{padding-bottom:0;}
+.reach-row svg{
+  flex:0 0 40px; width:40px; height:40px; padding:9px;
+  border-radius:50%; background:rgba(108,133,86,0.14); color:var(--forest);
+  transition:background .15s ease, color .15s ease;
+}
+.reach-row span{display:flex; flex-direction:column; min-width:0; font-family:var(--font-display); font-size:1.05rem; overflow-wrap:anywhere;}
+.reach-row small{font-family:var(--font-body); font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold);}
+.reach-row:hover svg{background:var(--forest); color:var(--paper);}
+
+.contact-panel--dark{background:var(--forest); border-color:var(--forest); color:var(--paper);}
+.contact-panel--dark p{color:rgba(251,248,240,0.8); margin:0 0 16px;}
+.contact-social__links{display:flex; flex-wrap:wrap; gap:10px;}
+.contact-social__order{display:inline-block; margin-top:18px; color:var(--paper); font-size:0.9rem; font-weight:600; text-decoration:none;}
+.contact-social__order:hover{text-decoration:underline;}
+
+@media (max-width:900px){
+  /* Phones: tap-to-call/email/map first, then the form, then social. */
+  .contact-layout{grid-template-columns:1fr; grid-template-areas:"reach" "main" "social"; grid-template-rows:none;}
+}
+@media (max-width:640px){
+  .contact-panel{padding:22px 18px;}
+  .form-grid{grid-template-columns:1fr;}
+  .contact-form__footer .btn{width:100%; text-align:center;}
+  .contact-form__footer p{width:100%; text-align:center;}
+}
