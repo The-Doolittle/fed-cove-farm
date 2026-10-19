@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "events",
     "orders",
     "hotplate",
+    "social",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
     "wagtail.contrib.settings",
@@ -146,6 +147,7 @@ GOOGLE_SERVICE_ACCOUNT_FILE = env("GOOGLE_SERVICE_ACCOUNT_FILE")
 GOOGLE_CALENDAR_ICS_URL = env("GOOGLE_CALENDAR_ICS_URL")
 CALENDAR_SYNC_MINUTES = int(env("CALENDAR_SYNC_MINUTES", "10"))
 HOTPLATE_SYNC_MINUTES = int(env("HOTPLATE_SYNC_MINUTES", "5"))
+SOCIAL_SYNC_MINUTES = int(env("SOCIAL_SYNC_MINUTES", "30"))
 
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
@@ -159,6 +161,14 @@ LOGGING = {
     # Wagtail logs every background reference-index task at INFO; keep the log readable.
     "loggers": {"django_tasks": {"level": "WARNING"}, "wagtail.tasks": {"level": "WARNING"}},
 }
+
+# Behind a TLS-terminating reverse proxy: trust its X-Forwarded-Proto/Host so links, share
+# previews and secure cookies use https and the public hostname.
+if env_bool("DJANGO_BEHIND_PROXY"):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    USE_X_FORWARDED_HOST = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 if not DEBUG:
     SESSION_COOKIE_HTTPONLY = True

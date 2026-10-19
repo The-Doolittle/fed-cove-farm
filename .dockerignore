@@ -5,3 +5,4 @@ media
 staticfiles
 secrets
 **/__pycache__
+seed/video

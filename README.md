@@ -14,8 +14,9 @@ docker compose exec web python manage.py createsuperuser
 
 Site: `http://<host>:8020/` · Admin: `/admin/`. Two containers run: `web` (gunicorn) and
 `worker` (pulls Google Calendar every `CALENDAR_SYNC_MINUTES`, refreshes the Hotplate menu every
-`HOTPLATE_SYNC_MINUTES`). Put it behind your reverse proxy for HTTPS and add the public hostname to
-`DJANGO_ALLOWED_HOSTS` / `DJANGO_CSRF_TRUSTED_ORIGINS`. Data lives in `./data`
+`HOTPLATE_SYNC_MINUTES`, and Instagram/Facebook posts every `SOCIAL_SYNC_MINUTES`). Behind your reverse
+proxy, set `DJANGO_BEHIND_PROXY=true` and add the public hostname to `DJANGO_ALLOWED_HOSTS` /
+`DJANGO_CSRF_TRUSTED_ORIGINS` (e.g. `https://fedcove.farm`). Data lives in `./data`
 (SQLite) and `./media` (uploaded photos) — back those two folders up.
 
 After changing models: `docker compose run --rm -u $(id -u) -v "$PWD":/app web python manage.py makemigrations`.
@@ -27,6 +28,7 @@ After changing models: `docker compose run --rm -u $(id -u) -v "$PWD":/app web p
 | `home/` | Page types (home, baked goods, landscaping, calendar, contact, flexible pages), farm settings, reviews, `seed_site` |
 | `events/` | Events, Google Calendar sync (`google_calendar.py`), month grid, `/api/events/` |
 | `hotplate/` | Reads the farm's Hotplate drops and shows them on the Baked Goods page, `/api/hotplate/` |
+| `social/` | Latest Instagram/Facebook posts for the home page (images stored locally) |
 | `orders/` | On-site drops (alternative to Hotplate): products, pickup options, orders, prep lists |
 | `templates/` | All HTML; `base.html` has the header/nav/footer |
 | `fedcove/static/` | CSS, JS, hero video, logo |
@@ -44,6 +46,8 @@ After changing models: `docker compose run --rm -u $(id -u) -v "$PWD":/app web p
   *Hotplate* (default) shows their Hotplate drops on the Baked Goods page; *on this site* uses Bakery → Drops;
   *link* just sends order buttons to the outside link.
 - **Hotplate** — when the menu was last updated, any errors, and a "Refresh now" button.
+- **Social feed** (full admins only) — connect Instagram (and optionally Facebook) by pasting a token;
+  step-by-step instructions are on that page.
 - **Forms** — contact-form messages (also emailed).
 
 ## Google Calendar
@@ -69,6 +73,14 @@ Respects the seller's Hotplate settings: private/draft drops are skipped, stock 
 show only if they display counts on Hotplate, and menus hidden before opening stay hidden.
 
 `manage.py refresh_hotplate --chef fortmillsourdough` is handy for testing with a seller that has drops open.
+
+## Social feed
+
+Instagram uses Meta's *Instagram API with Instagram Login* (needs a Business or Creator account, no
+Facebook Page or app review). The token is pasted in admin → Social feed and renewed weekly by the worker
+(tokens last 60 days; if it ever lapses — e.g. after an Instagram password change — the page shows the
+error and the site keeps the posts it has). Facebook is optional: a Page access token + Page ID.
+Facebook posts that duplicate an Instagram post are hidden. Images are downloaded and served from `/media/`.
 
 ## API
 

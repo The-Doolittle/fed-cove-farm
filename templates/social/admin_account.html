@@ -1,0 +1,15 @@
+<p>
+  {% if a.connected %}
+    <strong>Connected</strong>{% if a.username %} as {{ a.username }}{% endif %}.
+    {% if a.fetched_at %}Last updated {{ a.fetched_at|timesince }} ago.{% else %}Not fetched yet.{% endif %}
+    {% if a.token_expires_at %}Token renews automatically (currently valid until {{ a.token_expires_at|date:"M j, Y" }}).{% endif %}
+    {% if a.last_error %}<br><strong>Last attempt failed:</strong> {{ a.last_error }} — the site keeps showing the posts it already has.{% endif %}
+  {% else %}
+    Not connected.
+  {% endif %}
+</p>
+{% if a.connected %}
+<form method="post" action="{% url 'social_connect' a.platform %}" onsubmit="return confirm('Disconnect and remove these posts from the site?');">{% csrf_token %}
+  <input type="hidden" name="disconnect" value="1"><button class="button button-secondary button-small" type="submit">Disconnect</button>
+</form>
+{% endif %}

@@ -120,3 +120,13 @@ document.addEventListener('DOMContentLoaded', function () {
   inputs.forEach(function (input) { input.addEventListener('input', update); });
   update();
 });
+
+// Hero video: lighter file on small screens; just the poster image for reduced-motion or data-saver.
+document.addEventListener('DOMContentLoaded', function () {
+  var video = document.querySelector('video[data-src-large]');
+  if (!video) return;
+  var saveData = navigator.connection && navigator.connection.saveData;
+  if (saveData || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  video.src = window.matchMedia('(max-width: 900px)').matches ? video.dataset.srcSmall : video.dataset.srcLarge;
+  video.play().catch(function () {});
+});

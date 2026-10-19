@@ -1,0 +1,16 @@
+{% load static %}{% with fs=settings.home.FarmSettings %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["Bakery", "LocalBusiness"],
+  "name": "Fed Cove Farm and Nursery",
+  "url": "{{ request.scheme }}://{{ request.get_host }}/",
+  "image": "{{ request.scheme }}://{{ request.get_host }}{% static 'img/fed-cove-logo-large.png' %}",
+  "telephone": "{{ fs.phone|escapejs }}",
+  "email": "{{ fs.email|escapejs }}",
+  "address": {"@type": "PostalAddress", "addressLocality": "Franklin", "addressRegion": "NC", "addressCountry": "US"},
+  "areaServed": "Western North Carolina",
+  "sameAs": [{% if fs.facebook_url %}"{{ fs.facebook_url|escapejs }}", {% endif %}{% if fs.instagram_url %}"{{ fs.instagram_url|escapejs }}", {% endif %}"{{ fs.hotplate_url|escapejs }}"]
+}
+</script>
+{% endwith %}

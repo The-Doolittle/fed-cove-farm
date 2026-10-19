@@ -8,6 +8,7 @@ from django.db.utils import OperationalError
 from events.google_calendar import pull as pull_calendar
 from hotplate.feed import refresh as refresh_hotplate
 from hotplate.views import default_farm_settings
+from social.feed import refresh_all as refresh_social
 
 from home.models import FarmSettings
 
@@ -21,6 +22,7 @@ class Command(BaseCommand):
         jobs = [
             ("calendar", settings.CALENDAR_SYNC_MINUTES, self.calendar),
             ("hotplate", settings.HOTPLATE_SYNC_MINUTES, self.hotplate),
+            ("social", settings.SOCIAL_SYNC_MINUTES, self.social),
         ]
         next_run = {name: 0.0 for name, _, _ in jobs}
         while True:
@@ -52,3 +54,9 @@ class Command(BaseCommand):
             self.stdout.write(
                 f"hotplate ok: {len(feed.data['live'])} open, {len(feed.data['past'])} recent"
             )
+
+    def social(self):
+        for account in refresh_social():
+            if account.connected:
+                status = f"FAILED: {account.last_error}" if account.last_error else "ok"
+                self.stdout.write(f"social {account.platform} {status}")

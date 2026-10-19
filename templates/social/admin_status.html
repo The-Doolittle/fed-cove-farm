@@ -1,0 +1,52 @@
+{% extends "wagtailadmin/generic/base.html" %}
+{% block titletag %}Social feed{% endblock %}
+{% block main_header %}{% include "wagtailadmin/shared/header.html" with title="Social feed" icon="image" %}{% endblock %}
+{% block main_content %}
+<div class="nice-padding">
+  <p>The home page shows your latest Instagram and Facebook posts, updated every half hour. Facebook posts that are copies of an Instagram post are only shown once.</p>
+  <form method="post" action="{% url 'social_refresh' %}">{% csrf_token %}<button class="button" type="submit">Refresh now</button></form>
+
+  <h2 style="margin-top:2em;">Instagram</h2>
+  {% include "social/admin_account.html" with a=instagram %}
+  <details style="margin-top:1em;"{% if not instagram.connected %} open{% endif %}>
+    <summary>{% if instagram.connected %}Replace token{% else %}How to connect (about 15 minutes, once){% endif %}</summary>
+    <ol>
+      <li>The Instagram account must be a <strong>Business</strong> or <strong>Creator</strong> account (Instagram app → Settings → Account type).</li>
+      <li>Go to <a href="https://developers.facebook.com/apps" target="_blank" rel="noopener">developers.facebook.com/apps</a> → <em>Create app</em> → use case <em>“Manage messaging & content on Instagram”</em>.</li>
+      <li>In the app: <em>Instagram → API setup with Instagram login</em> → <em>Add account</em>, and sign in as the farm’s Instagram.</li>
+      <li>Click <em>Generate token</em> next to the account, copy it, and paste it below. You don’t need to publish the app or submit it for review.</li>
+    </ol>
+    <form method="post" action="{% url 'social_connect' 'instagram' %}">{% csrf_token %}
+      <p><label>Access token<br><input type="password" name="token" autocomplete="off" style="width:100%; max-width:640px;"></label></p>
+      <button class="button" type="submit">Save &amp; connect</button>
+    </form>
+  </details>
+
+  <h2 style="margin-top:2em;">Facebook <small>(optional)</small></h2>
+  {% include "social/admin_account.html" with a=facebook %}
+  <details style="margin-top:1em;"{% if not facebook.connected %} open{% endif %}>
+    <summary>{% if facebook.connected %}Replace token{% else %}How to connect{% endif %}</summary>
+    <ol>
+      <li>In the same Meta app, add the <em>Facebook Login</em> / Pages use case, then open the <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer</a>.</li>
+      <li>Choose the app, then <em>Get Page Access Token</em> with the <code>pages_read_engagement</code> and <code>pages_show_list</code> permissions, and pick the farm’s Page.</li>
+      <li>In the <a href="https://developers.facebook.com/tools/debug/accesstoken/" target="_blank" rel="noopener">Access Token Debugger</a>, click <em>Extend Access Token</em>, then run <code>me/accounts</code> in the Explorer with that long-lived token — the Page’s <code>access_token</code> and <code>id</code> there don’t expire.</li>
+    </ol>
+    <form method="post" action="{% url 'social_connect' 'facebook' %}">{% csrf_token %}
+      <p><label>Page ID<br><input type="text" name="account_id" value="{{ facebook.account_id }}" autocomplete="off"></label></p>
+      <p><label>Page access token<br><input type="password" name="token" autocomplete="off" style="width:100%; max-width:640px;"></label></p>
+      <button class="button" type="submit">Save &amp; connect</button>
+    </form>
+  </details>
+
+  {% if posts %}
+  <h2 style="margin-top:2em;">On the home page now</h2>
+  <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:10px; max-width:900px;">
+    {% for p in posts %}
+      <a href="{{ p.permalink }}" target="_blank" rel="noopener" title="{{ p.caption|truncatechars:120 }}">
+        {% if p.image %}<img src="{{ p.image.url }}" alt="" style="width:100%; aspect-ratio:1; object-fit:cover; border-radius:4px;">{% else %}<div style="aspect-ratio:1; padding:8px; border:1px solid #ccc; border-radius:4px; overflow:hidden; font-size:12px;">{{ p.caption|truncatechars:140 }}</div>{% endif %}
+      </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

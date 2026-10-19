@@ -1,11 +1,12 @@
 {% extends "base.html" %}
-{% load wagtailcore_tags wagtailimages_tags site_tags %}
+{% load wagtailcore_tags wagtailimages_tags site_tags hotplate_tags %}
 {% block title %}Home{% endblock %}
+{% block head_extra %}{% include "includes/business_schema.html" %}{% endblock %}
 {% block content %}
-{% include "includes/hero.html" with hero_video="video/top-down-flyover.mp4" %}
+{% include "includes/hero.html" with hero_video=True %}
+{% order_link as order %}
 
 {% if drop_banner %}
-{% order_link as order %}
 <div class="wrap">
   <a class="drop-banner" href="{{ order.url }}">
     <span class="drop-banner__dot" aria-hidden="true"></span>
@@ -31,15 +32,37 @@
     </div>
     {% more_link as more %}
     {% if more and page.more_button_label %}
-    <div style="margin-top:24px; text-align:center;">
-      <a class="btn btn-outline btn--arrow" href="{{ more.url }}">
-        <span>{{ page.more_button_label }}</span>
-        <span aria-hidden="true">&rarr;</span>
-      </a>
+    <div class="center-row">
+      <a class="btn btn-outline btn--arrow" href="{{ more.url }}"><span>{{ page.more_button_label }}</span><span aria-hidden="true">&rarr;</span></a>
     </div>
     {% endif %}
   </div>
 </section>
+
+{% if bake_teaser %}
+<section class="home-bake">
+  <div class="wrap">
+    <div class="section-head section-head--row">
+      <div>
+        <p class="eyebrow">{{ bake_teaser.eyebrow }}</p>
+        <h2 class="section-title">{{ bake_teaser.title }}</h2>
+      </div>
+      <a class="btn btn-outline btn--arrow" href="{{ order.url }}"{% if order.external %} target="_blank" rel="noopener"{% endif %}><span>{% if drop_banner %}Order now{% else %}See the bakery{% endif %}</span><span aria-hidden="true">&rarr;</span></a>
+    </div>
+    <div class="bake-row">
+      {% for item in bake_teaser.items %}
+      <a class="bake-card{% if item.sold_out %} is-soldout{% endif %}" href="{{ order.url }}"{% if order.external %} target="_blank" rel="noopener"{% endif %}>
+        {% if item.image_url %}<img src="{{ item.image_url }}" alt="" loading="lazy" width="600" height="450">{% elif item.image %}{% image item.image fill-600x450 format-webp loading="lazy" alt="" %}{% endif %}
+        <span class="bake-card__body">
+          <strong>{{ item.title }}</strong>
+          {% if item.sold_out %}<span>Sold out</span>{% elif item.price %}<span>{{ item.price|money }}</span>{% endif %}
+        </span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
 
 <section id="calendar">
   <div class="wrap">
@@ -48,9 +71,28 @@
         <p class="eyebrow">{{ page.events_eyebrow }}</p>
         <h2 class="section-title">{{ page.events_title }}</h2>
       </div>
-      {% if events_page %}<a class="btn btn-outline" href="{% pageurl events_page %}">Full calendar</a>{% endif %}
+      {% if events_page %}<a class="btn btn-outline btn--arrow" href="{% pageurl events_page %}"><span>Full calendar</span><span aria-hidden="true">&rarr;</span></a>{% endif %}
     </div>
-    {% include "includes/event_list.html" with events=upcoming_events empty="Nothing on the calendar right now — check back soon, or follow along on Facebook." %}
+    {% if upcoming_events %}
+    <ol class="event-cards">
+      {% for event in upcoming_events %}
+      <li class="event-card">
+        <div class="event-date" aria-hidden="true">
+          <span class="event-date__month">{{ event.start|date:"M" }}</span>
+          <span class="event-date__day">{{ event.start|date:"j" }}</span>
+          <span class="event-date__dow">{{ event.start|date:"D" }}</span>
+        </div>
+        <div class="event-card__body">
+          <h3>{{ event.title }}</h3>
+          <p>{{ event.start|date:"l" }}{% if not event.all_day %} &middot; {{ event.start|date:"g:i A"|cut:":00" }}&ndash;{{ event.end|date:"g:i A"|cut:":00" }}{% endif %}</p>
+          {% if event.location %}<p class="event-card__where">{{ event.location }}</p>{% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    <p class="event-empty">Nothing on the calendar right now &mdash; check back soon, or follow along below.</p>
+    {% endif %}
   </div>
 </section>
 
@@ -62,51 +104,85 @@
         <h3>{{ page.cta_title }}</h3>
         {% if page.cta_text %}<p>{{ page.cta_text }}</p>{% endif %}
       </div>
-      {% if page.cta_page %}<a class="btn" href="{% pageurl page.cta_page %}">{{ page.cta_button_label|default:"Find Us!" }}</a>{% endif %}
+      {% if page.cta_page %}<a class="btn" href="{% pageurl page.cta_page %}">{{ page.cta_button_label|default:"Learn more" }}</a>{% endif %}
     </div>
   </div>
 </section>
 {% endif %}
 
-<section>
+{% if reviews %}
+<section class="home-reviews">
   <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">From The Field</p>
-      <h2 class="section-title">{{ page.follow_title }}</h2>
-      {% if page.follow_text %}<p class="lede">{{ page.follow_text }}</p>{% endif %}
+    <p class="eyebrow">Kind Words</p>
+    <div class="testimonial-carousel testimonial-carousel--home" data-autorotate="7000">
+      <div class="testimonial-track">
+        {% for review in reviews %}
+        <figure class="testimonial-card" role="group" aria-roledescription="slide">
+          <p class="testimonial-stars" aria-label="{{ review.stars }} out of 5 stars">{{ review.star_string }}</p>
+          <blockquote class="testimonial-quote">&ldquo;{{ review.quote }}&rdquo;</blockquote>
+          <figcaption class="testimonial-attr">{{ review.name }}{% if review.detail %} <span>&middot; {{ review.detail }}</span>{% endif %}</figcaption>
+        </figure>
+        {% endfor %}
+      </div>
+      <div class="testimonial-dots">
+        {% for review in reviews %}<button class="testimonial-dot" data-index="{{ forloop.counter0 }}" aria-label="Show review {{ forloop.counter }}"></button>{% endfor %}
+      </div>
     </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="home-social">
+  <div class="wrap">
     {% with fs=settings.home.FarmSettings %}
-    {% order_link as order %}
-    <div class="follow-layout{% if not page.show_facebook_feed or not fs.facebook_url %} follow-layout--single{% endif %}">
-      {% if page.show_facebook_feed and fs.facebook_url %}
-      <div class="fb-embed">
-        <iframe
-          src="https://www.facebook.com/plugins/page.php?href={{ fs.facebook_url|urlencode:'' }}&amp;tabs=timeline&amp;width=560&amp;height=560&amp;small_header=false&amp;adapt_container_width=true&amp;hide_cover=false&amp;show_facepile=true"
-          width="100%" height="560" style="border:none;overflow:hidden"
-          scrolling="no" frameborder="0" allowfullscreen="true"
-          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-          loading="lazy" title="Fed Cove Farm and Nursery on Facebook"></iframe>
-        <div class="fb-fallback">
-          <p>Feed not loading? Facebook sometimes blocks embeds until you visit the page directly.</p>
-          <a class="btn btn-outline" href="{{ fs.facebook_url }}" target="_blank" rel="noopener">View on Facebook</a>
-        </div>
+    <div class="section-head section-head--row">
+      <div>
+        <p class="eyebrow">From The Field</p>
+        <h2 class="section-title">{{ page.follow_title }}</h2>
+        {% if page.follow_text %}<p class="lede">{{ page.follow_text }}</p>{% endif %}
       </div>
-      {% endif %}
-      <div class="follow-side">
-        {% if fs.instagram_url %}
-        <div class="follow-card">
-          <h3>Instagram</h3>
-          <p>Photos from the greenhouse, the market table, and the kitchen.</p>
-          <a class="btn" href="{{ fs.instagram_url }}" target="_blank" rel="noopener">{{ fs.instagram_handle|default:"Instagram" }}</a>
-        </div>
-        {% endif %}
-        <div class="follow-card">
-          <h3>Order Ahead</h3>
-          <p>Reserve baked goods before market day.</p>
-          <a class="btn btn-outline" href="{{ order.url }}"{% if order.external %} target="_blank" rel="noopener"{% endif %}>{{ order.label }}</a>
-        </div>
+      <div class="social-follow">
+        {% if fs.instagram_url %}<a class="btn" href="{{ fs.instagram_url }}" target="_blank" rel="noopener">{{ fs.instagram_handle|default:"Instagram" }}</a>{% endif %}
+        {% if fs.facebook_url %}<a class="btn btn-outline" href="{{ fs.facebook_url }}" target="_blank" rel="noopener">Facebook</a>{% endif %}
       </div>
     </div>
+    {% if social_posts %}
+    <ul class="social-grid">
+      {% for post in social_posts %}
+      <li>
+        <a class="social-tile{% if not post.image %} social-tile--text{% endif %}" href="{{ post.permalink }}" target="_blank" rel="noopener" aria-label="View on {{ post.get_platform_display }}{% if post.caption %}: {{ post.caption|truncatechars:80 }}{% endif %}">
+          {% if post.image %}
+            <img src="{{ post.image.url }}" alt="" loading="lazy" width="640" height="640">
+            {% if post.caption %}<span class="social-tile__caption">{{ post.caption|truncatechars:140 }}</span>{% endif %}
+          {% else %}
+            <span class="social-tile__text">{{ post.caption|truncatechars:220 }}</span>
+          {% endif %}
+          <span class="social-tile__meta">
+            {% if post.platform == "instagram" %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg>
+            {% else %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M15 8h-2a2 2 0 0 0-2 2v2H9v3h2v6h3v-6h2.2l.8-3H14v-1.5c0-.6.4-1 1-1h1.5V8Z"/></svg>
+            {% endif %}
+            {{ post.posted_at|date:"M j" }}{% if post.is_video %} &middot; Video{% endif %}
+          </span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="social-empty">
+      {% if fs.instagram_url %}
+      <a class="follow-card" href="{{ fs.instagram_url }}" target="_blank" rel="noopener">
+        <h3>Instagram</h3><p>Photos from the greenhouse, the market table, and the kitchen.</p><span class="reach-link">{{ fs.instagram_handle|default:"Follow us" }} &rarr;</span>
+      </a>
+      {% endif %}
+      {% if fs.facebook_url %}
+      <a class="follow-card" href="{{ fs.facebook_url }}" target="_blank" rel="noopener">
+        <h3>Facebook</h3><p>Market announcements and weekly updates.</p><span class="reach-link">Fed Cove Farm and Nursery &rarr;</span>
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
     {% endwith %}
   </div>
 </section>

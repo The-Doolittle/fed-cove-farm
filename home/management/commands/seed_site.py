@@ -144,10 +144,7 @@ class Command(BaseCommand):
             hero_text="As eighth-generation stewards of land in the scenic mountains of North Carolina, we're dedicated to delivering top-tier products — from landscape perennials to delectable baked goods.",
             card_heading="This way to the bakery.",
             card_button_label="Order Now",
-            cta_title="Farmers’ Market Schedule",
-            cta_text="We occasionally make appearances at farmers’ markets in western North Carolina.",
-            cta_button_label="Find Us!",
-            follow_text="The latest updates, market announcements, and what’s fresh — straight from our Facebook page.",
+            follow_text="The latest from the greenhouse, the market table, and the kitchen.",
         )
         root.add_child(instance=home)
 
@@ -262,7 +259,6 @@ class Command(BaseCommand):
             HomeTile(title="Landscape Perennials", image=img["fed-cove-farm-03.jpg"], link_page=landscaping, sort_order=0),
             HomeTile(title="Baked Goods", image=img["sourdough.jpg"], link_page=baked, sort_order=1),
         ]
-        home.cta_page = events
         home.save_revision().publish()
 
         farm = FarmSettings.for_site(site)

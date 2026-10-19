@@ -186,6 +186,31 @@ def open_drop_banner(request):
     return None
 
 
+def bake_teaser(request, count=4):
+    """A few baked goods for the home page: this week's Hotplate drop, else the last one, else the menu."""
+    farm = FarmSettings.for_request(request)
+    if farm.ordering_mode == FarmSettings.ORDERING_HOTPLATE:
+        from hotplate.feed import present
+
+        menu = present(farm.hotplate_username) or {}
+        live = [d for d in menu.get("live", []) if d["sections"]]
+        drop, eyebrow = (live[0], "On this week’s menu") if live else ((menu.get("past") or [None])[0], "From our last bake")
+        if drop:
+            items = [i for s in drop["sections"] for i in s["items"] if i.get("image") and i.get("price") != "0.00"]
+            if items:
+                return {
+                    "eyebrow": eyebrow,
+                    "title": drop["title"],
+                    "items": [{"title": i["title"], "image_url": i["image"], "price": i["price"], "sold_out": i.get("sold_out")} for i in items[:count]],
+                }
+    from orders.models import Product
+
+    products = Product.objects.filter(show_on_menu=True).exclude(image=None).select_related("image")[:count]
+    if products:
+        return {"eyebrow": "From our kitchen", "title": "What we bake", "items": [{"title": p.name, "image": p.image} for p in products]}
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Pages
 
@@ -198,7 +223,9 @@ class HomePage(HeroFields, Page):
     events_eyebrow = models.CharField(max_length=80, default="Upcoming")
     events_title = models.CharField(max_length=160, default="Farm calendar")
 
-    cta_title = models.CharField("Banner title", max_length=120, blank=True)
+    cta_title = models.CharField(
+        "Banner title", max_length=120, blank=True, help_text="Optional announcement (e.g. a plant sale). Leave blank to hide."
+    )
     cta_text = models.CharField("Banner text", max_length=255, blank=True)
     cta_button_label = models.CharField("Banner button", max_length=40, blank=True)
     cta_page = models.ForeignKey(
@@ -207,7 +234,6 @@ class HomePage(HeroFields, Page):
 
     follow_title = models.CharField(max_length=120, default="Follow Along")
     follow_text = models.TextField(blank=True)
-    show_facebook_feed = models.BooleanField(default=True)
 
     content_panels = (
         Page.content_panels
@@ -230,11 +256,12 @@ class HomePage(HeroFields, Page):
                     FieldPanel("cta_button_label"),
                     FieldPanel("cta_page"),
                 ],
-                heading="Dark banner",
+                heading="Announcement banner",
+                classname="collapsed",
             ),
             MultiFieldPanel(
-                [FieldPanel("follow_title"), FieldPanel("follow_text"), FieldPanel("show_facebook_feed")],
-                heading="Follow along",
+                [FieldPanel("follow_title"), FieldPanel("follow_text")],
+                heading="Follow along (posts come from admin → Social feed)",
             ),
         ]
     )
@@ -245,10 +272,15 @@ class HomePage(HeroFields, Page):
     def get_context(self, request, *args, **kwargs):
         from events.models import Event
 
+        from social.feed import latest as latest_posts
+
         context = super().get_context(request, *args, **kwargs)
         context["drop_banner"] = open_drop_banner(request)
-        context["upcoming_events"] = Event.upcoming()[:4]
+        context["bake_teaser"] = bake_teaser(request)
+        context["upcoming_events"] = Event.upcoming()[:3]
         context["events_page"] = EventsPage.objects.live().first()
+        context["reviews"] = Review.objects.all()[:6]
+        context["social_posts"] = latest_posts(limit=8)
         return context
 
 
