@@ -1,3 +1,6 @@
+import logging
+
+from django.conf import settings
 from django.db import models
 from modelcluster.fields import ParentalKey
 from wagtail import blocks
@@ -8,6 +11,8 @@ from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 from wagtail.fields import RichTextField, StreamField
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.models import Orderable, Page
+
+log = logging.getLogger(__name__)
 
 
 @register_setting(icon="cog")
@@ -486,7 +491,10 @@ class ContactPage(HeroFields, AbstractEmailForm):
             FieldPanel("social_text"),
             MultiFieldPanel(
                 [
-                    FieldRowPanel([FieldPanel("from_address"), FieldPanel("to_address")]),
+                    FieldPanel(
+                        "to_address",
+                        help_text="Where messages are sent (comma-separate several). Replies go straight to the visitor.",
+                    ),
                     FieldPanel("subject"),
                 ],
                 heading="Email",
@@ -513,6 +521,31 @@ class ContactPage(HeroFields, AbstractEmailForm):
             return None  # a bot filled the hidden field; pretend it worked
         form.fields.pop(self.HONEYPOT, None)
         return super().process_form_submission(form)
+
+    def send_mail(self, form):
+        """Email the message from the site's own address, with Reply-To set to the visitor.
+
+        Mail servers only let us send as addresses we own, so the page's "from address" isn't used.
+        The submission is already saved (admin → Forms) before this runs, so a mail problem is
+        logged rather than shown to the visitor as an error.
+        """
+        from django.core.mail import EmailMessage
+
+        recipients = [a.strip() for a in (self.to_address or settings.FARM_NOTIFY_EMAIL).split(",") if a.strip()]
+        visitor = (form.cleaned_data.get("email") or "").strip()
+        name = (form.cleaned_data.get("name") or "").strip()
+        subject = self.subject or "New message from the website"
+        message = EmailMessage(
+            subject=f"{subject} — {name}" if name else subject,
+            body=self.render_email(form),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=recipients,
+            reply_to=[visitor] if visitor else None,
+        )
+        try:
+            message.send()
+        except Exception:
+            log.exception("Couldn't email contact form message to %s (it's saved under Forms)", recipients)
 
 
 class Review(Orderable):

@@ -128,7 +128,10 @@ if env("EMAIL_HOST"):
     EMAIL_PORT = int(env("EMAIL_PORT", "587"))
     EMAIL_HOST_USER = env("EMAIL_HOST_USER")
     EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
-    EMAIL_USE_TLS = True
+    # Port 465 uses SSL from the start; 587 upgrades with STARTTLS.
+    EMAIL_USE_SSL = EMAIL_PORT == 465
+    EMAIL_USE_TLS = not EMAIL_USE_SSL
+    EMAIL_TIMEOUT = 20
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "Fed Cove Farm <hello@fedcove.farm>")
