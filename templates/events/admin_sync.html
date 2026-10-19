@@ -1,0 +1,27 @@
+{% extends "wagtailadmin/generic/base.html" %}
+{% block titletag %}Calendar sync{% endblock %}
+{% block main_header %}{% include "wagtailadmin/shared/header.html" with title="Calendar sync" icon="date" %}{% endblock %}
+{% block main_content %}
+<div class="nice-padding">
+  <p>
+    {% if mode == "api" %}<strong>Connected to Google Calendar (two-way).</strong> Events added in Google Calendar — including from your phone — appear on the site automatically, and events added under <a href="{% url 'wagtailsnippets_events_event:list' %}">Events</a> are copied to Google.
+    {% elif mode == "ics" %}<strong>Reading from Google Calendar (one-way).</strong> Events added in Google Calendar appear on the site automatically. Events added here show on the site only.
+    {% else %}<strong>Google Calendar isn't connected yet.</strong> Only events added under <a href="{% url 'wagtailsnippets_events_event:list' %}">Events</a> are shown.{% endif %}
+  </p>
+  <form method="post" action="{% url 'calendar_sync_run' %}">{% csrf_token %}<button class="button" type="submit">Sync now</button></form>
+
+  {% if failed_pushes %}
+  <h2 style="margin-top:2em;">Couldn&rsquo;t copy to Google</h2>
+  <ul>{% for e in failed_pushes %}<li>{{ e.title }} — {{ e.sync_error }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <h2 style="margin-top:2em;">Recent syncs</h2>
+  <table class="listing">
+    <thead><tr><th>When</th><th>Mode</th><th>Result</th></tr></thead>
+    <tbody>
+      {% for run in runs %}<tr><td>{{ run.ran_at|date:"M j, g:i:s A" }}</td><td>{{ run.mode }}</td><td>{% if not run.ok %}<strong>Failed:</strong> {% endif %}{{ run.message }}</td></tr>
+      {% empty %}<tr><td colspan="3">Not run yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

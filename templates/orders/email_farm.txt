@@ -1,0 +1,12 @@
+New order {{ order.short_code }} for "{{ order.drop.title }}"
+
+{{ order.name }} · {{ order.email }}{% if order.phone %} · {{ order.phone }}{% endif %}
+{% if order.slot %}Pickup: {{ order.slot.label }}
+{% endif %}
+{% for line in order.lines.all %}  {{ line.quantity }} x {{ line.name }}
+{% endfor %}
+Total: ${{ order.total }}
+{% if order.note %}
+Note: {{ order.note }}
+{% endif %}
+Prep list: {{ base_url }}{% url 'prep_list' order.drop_id %}

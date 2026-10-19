@@ -1,0 +1,19 @@
+{% load wagtailimages_tags %}
+{% if value.scrolling %}
+<div class="photo-marquee photo-marquee--block">
+  <div class="photo-marquee__track">
+    {% for item in value.images %}<figure class="photo-card">{% image item.image fill-760x560 format-webp loading="lazy" %}{% if item.caption %}<figcaption>{{ item.caption }}</figcaption>{% endif %}</figure>{% endfor %}
+    {% for item in value.images %}<figure class="photo-card" aria-hidden="true">{% image item.image fill-760x560 format-webp alt="" loading="lazy" %}{% if item.caption %}<figcaption>{{ item.caption }}</figcaption>{% endif %}</figure>{% endfor %}
+  </div>
+</div>
+{% else %}
+<div class="gallery-grid">
+  {% for item in value.images %}
+  {% image item.image fill-800x800 format-webp as thumb %}{% image item.image width-1800 format-webp as full %}
+  <figure class="gallery-item">
+    <a href="{{ full.url }}" target="_blank" rel="noopener"><img src="{{ thumb.url }}" width="{{ thumb.width }}" height="{{ thumb.height }}" alt="{{ item.caption|default:item.image.title }}" loading="lazy"></a>
+    {% if item.caption %}<figcaption>{{ item.caption }}</figcaption>{% endif %}
+  </figure>
+  {% endfor %}
+</div>
+{% endif %}

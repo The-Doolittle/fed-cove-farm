@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load wagtailimages_tags %}
+{% block content %}
+{% include "includes/hero.html" %}
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">{{ page.intro_eyebrow }}</p>
+      <h2 class="section-title">{{ page.intro_title }}</h2>
+      {% if page.intro_text %}<p class="lede">{{ page.intro_text }}</p>{% endif %}
+    </div>
+  </div>
+  {% with photos=page.gallery_images.all %}
+  {% if photos %}
+  <div class="photo-marquee">
+    <div class="photo-marquee__track">
+      {% for photo in photos %}
+        <figure class="photo-card">{% image photo.image fill-760x560 format-webp loading="lazy" %}{% if photo.caption %}<figcaption>{{ photo.caption }}</figcaption>{% endif %}</figure>
+      {% endfor %}
+      {# Second copy makes the scroll loop seamlessly. #}
+      {% for photo in photos %}
+        <figure class="photo-card" aria-hidden="true">{% image photo.image fill-760x560 format-webp alt="" loading="lazy" %}{% if photo.caption %}<figcaption>{{ photo.caption }}</figcaption>{% endif %}</figure>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+  {% endwith %}
+  {% if page.notice %}
+  <div class="wrap"><p class="notice" style="margin-top:28px;">{{ page.notice }}</p></div>
+  {% endif %}
+</section>
+{% endblock %}

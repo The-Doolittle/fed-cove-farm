@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+{% block content %}
+{% include "includes/hero.html" %}
+{% if page.body %}
+<section>
+  <div class="wrap prose">
+    {% for block in page.body %}{% include_block block %}{% endfor %}
+  </div>
+</section>
+{% endif %}
+{% if child_pages %}
+<section>
+  <div class="wrap">
+    <div class="grid-4 grid-tiles">
+      {% for child in child_pages %}
+      <a class="category-card category-card--featured" href="{% pageurl child %}">
+        {% if child.hero_image %}{% image child.hero_image fill-900x640 format-webp loading="lazy" %}{% endif %}
+        <div class="label">{{ child.title }}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% if not page.body and not child_pages and page.empty_message %}
+<section><div class="wrap"><p class="notice">{{ page.empty_message }}</p></div></section>
+{% endif %}
+{% endblock %}

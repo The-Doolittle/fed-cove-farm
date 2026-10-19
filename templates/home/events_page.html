@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+{% block content %}
+{% include "includes/hero.html" %}
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Coming Up</p>
+      <h2 class="section-title">Where we&rsquo;ll be</h2>
+      {% if page.intro_text %}<p class="lede">{{ page.intro_text }}</p>{% endif %}
+    </div>
+    {% include "includes/event_list.html" with events=upcoming_events empty="Nothing scheduled yet — check back soon." %}
+  </div>
+</section>
+
+<section id="month">
+  <div class="wrap">
+    <div class="cal">
+      <div class="cal__header">
+        <a class="cal__nav" href="?month={{ prev_month }}#month" aria-label="Previous month">&larr;</a>
+        <h2 class="cal__month">{{ month|date:"F Y" }}</h2>
+        <a class="cal__nav" href="?month={{ next_month }}#month" aria-label="Next month">&rarr;</a>
+      </div>
+      <div class="cal__grid" role="grid">
+        {% for name in weekday_names %}<div class="cal__dow" role="columnheader">{{ name }}</div>{% endfor %}
+        {% for week in weeks %}{% for day in week %}
+          <div class="cal__day{% if not day.in_month %} is-outside{% endif %}{% if day.is_today %} is-today{% endif %}{% if day.events %} has-events{% endif %}" role="gridcell">
+            <span class="cal__num">{{ day.date|date:"j" }}</span>
+            {% for event in day.events %}
+              <span class="cal__event" title="{{ event.title }}{% if event.location %} — {{ event.location }}{% endif %}">{% if not event.all_day %}<b>{{ event.start|date:"g:iA"|cut:":00"|lower }}</b> {% endif %}{{ event.title }}</span>
+            {% endfor %}
+          </div>
+        {% endfor %}{% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if page.locations.exists %}
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">{{ page.locations_eyebrow }}</p>
+      <h2 class="section-title">{{ page.locations_title }}</h2>
+    </div>
+    <div class="locations-grid">
+      {% for loc in page.locations.all %}
+      <div class="location-card">
+        {% if loc.image %}{% image loc.image fill-800x500 format-webp loading="lazy" %}{% endif %}
+        <div class="loc-label">{{ loc.name }}{% if loc.address %}<span>{{ loc.address }}</span>{% endif %}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

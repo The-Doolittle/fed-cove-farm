@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+{% block title %}Home{% endblock %}
+{% block content %}
+{% include "includes/hero.html" with hero_video="video/top-down-flyover.mp4" %}
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">{{ page.tiles_eyebrow }}</p>
+      <h2 class="section-title">{{ page.tiles_title }}</h2>
+    </div>
+    <div class="grid-4 grid-tiles">
+      {% for tile in page.tiles.all %}
+        <a class="category-card category-card--featured" href="{% pageurl tile.link_page %}">
+          {% image tile.image fill-900x640 format-webp loading="lazy" %}
+          <div class="label">{{ tile.title }}</div>
+        </a>
+      {% endfor %}
+    </div>
+    {% more_link as more %}
+    {% if more and page.more_button_label %}
+    <div style="margin-top:24px; text-align:center;">
+      <a class="btn btn-outline btn--arrow" href="{{ more.url }}">
+        <span>{{ page.more_button_label }}</span>
+        <span aria-hidden="true">&rarr;</span>
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<section id="calendar">
+  <div class="wrap">
+    <div class="section-head section-head--row">
+      <div>
+        <p class="eyebrow">{{ page.events_eyebrow }}</p>
+        <h2 class="section-title">{{ page.events_title }}</h2>
+      </div>
+      {% if events_page %}<a class="btn btn-outline" href="{% pageurl events_page %}">Full calendar</a>{% endif %}
+    </div>
+    {% include "includes/event_list.html" with events=upcoming_events empty="Nothing on the calendar right now — check back soon, or follow along on Facebook." %}
+  </div>
+</section>
+
+{% if page.cta_title %}
+<section>
+  <div class="wrap">
+    <div class="cta-band">
+      <div>
+        <h3>{{ page.cta_title }}</h3>
+        {% if page.cta_text %}<p>{{ page.cta_text }}</p>{% endif %}
+      </div>
+      {% if page.cta_page %}<a class="btn" href="{% pageurl page.cta_page %}">{{ page.cta_button_label|default:"Find Us!" }}</a>{% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">From The Field</p>
+      <h2 class="section-title">{{ page.follow_title }}</h2>
+      {% if page.follow_text %}<p class="lede">{{ page.follow_text }}</p>{% endif %}
+    </div>
+    {% with fs=settings.home.FarmSettings %}
+    {% order_link as order %}
+    <div class="follow-layout{% if not page.show_facebook_feed or not fs.facebook_url %} follow-layout--single{% endif %}">
+      {% if page.show_facebook_feed and fs.facebook_url %}
+      <div class="fb-embed">
+        <iframe
+          src="https://www.facebook.com/plugins/page.php?href={{ fs.facebook_url|urlencode:'' }}&amp;tabs=timeline&amp;width=560&amp;height=560&amp;small_header=false&amp;adapt_container_width=true&amp;hide_cover=false&amp;show_facepile=true"
+          width="100%" height="560" style="border:none;overflow:hidden"
+          scrolling="no" frameborder="0" allowfullscreen="true"
+          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+          loading="lazy" title="Fed Cove Farm and Nursery on Facebook"></iframe>
+        <div class="fb-fallback">
+          <p>Feed not loading? Facebook sometimes blocks embeds until you visit the page directly.</p>
+          <a class="btn btn-outline" href="{{ fs.facebook_url }}" target="_blank" rel="noopener">View on Facebook</a>
+        </div>
+      </div>
+      {% endif %}
+      <div class="follow-side">
+        {% if fs.instagram_url %}
+        <div class="follow-card">
+          <h3>Instagram</h3>
+          <p>Photos from the greenhouse, the market table, and the kitchen.</p>
+          <a class="btn" href="{{ fs.instagram_url }}" target="_blank" rel="noopener">{{ fs.instagram_handle|default:"Instagram" }}</a>
+        </div>
+        {% endif %}
+        <div class="follow-card">
+          <h3>Order Ahead</h3>
+          <p>Reserve baked goods before market day.</p>
+          <a class="btn btn-outline" href="{{ order.url }}"{% if order.external %} target="_blank" rel="noopener"{% endif %}>{{ order.label }}</a>
+        </div>
+      </div>
+    </div>
+    {% endwith %}
+  </div>
+</section>
+{% endblock %}

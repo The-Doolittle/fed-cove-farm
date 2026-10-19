@@ -1,0 +1,34 @@
+{% load static wagtailimages_tags wagtailcore_tags site_tags %}
+<section class="hero">
+  {% if page.hero_image %}{% image page.hero_image width-1800 format-webp as hero_img %}{% endif %}
+  {% if hero_video %}
+    <video class="hero-media" autoplay muted loop playsinline preload="metadata" poster="{% if hero_img %}{{ hero_img.url }}{% else %}{% static 'img/fed-cove-farm-01.jpg' %}{% endif %}" aria-label="Aerial flyover of Fed Cove Farm">
+      <source src="{% static hero_video %}" type="video/mp4">
+    </video>
+  {% elif hero_img %}
+    <img class="hero-media" src="{{ hero_img.url }}" width="{{ hero_img.width }}" height="{{ hero_img.height }}" alt="{{ page.hero_image.title }}" fetchpriority="high">
+  {% else %}
+    <img class="hero-media" src="{% static 'img/fed-cove-farm-01.jpg' %}" alt="Fed Cove Farm and Nursery" fetchpriority="high">
+  {% endif %}
+  <div class="hero-copy">
+    <div class="hero-card">
+      {% if page.hero_eyebrow %}<p class="eyebrow">{{ page.hero_eyebrow }}</p>{% endif %}
+      <h1>{{ page.hero_title|default:page.title }}</h1>
+      {% if page.hero_text %}<p>{{ page.hero_text }}</p>{% endif %}
+    </div>
+    {% if page.card_heading %}
+      {% order_link as order %}
+      <div class="hero-card hero-card--order">
+        <h2>{{ page.card_heading }}</h2>
+        {% if page.card_button_page %}
+          <a class="btn btn--arrow" href="{% pageurl page.card_button_page %}">
+        {% else %}
+          <a class="btn btn--arrow" href="{{ order.url }}"{% if order.external %} target="_blank" rel="noopener"{% endif %}>
+        {% endif %}
+          <span>{{ page.card_button_label|default:order.label }}</span>
+          <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</section>

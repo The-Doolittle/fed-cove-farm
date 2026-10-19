@@ -1,0 +1,22 @@
+{% extends "wagtailadmin/generic/base.html" %}
+{% block titletag %}Prep lists{% endblock %}
+{% block main_header %}{% include "wagtailadmin/shared/header.html" with title="Prep lists" icon="list-ul" %}{% endblock %}
+{% block main_content %}
+<div class="nice-padding">
+  <table class="listing">
+    <thead><tr><th>Drop</th><th>Opens</th><th>Closes</th><th>Orders</th></tr></thead>
+    <tbody>
+      {% for drop in drops %}
+      <tr>
+        <td><a href="{% url 'prep_list' drop.pk %}">{{ drop.title }}</a></td>
+        <td>{{ drop.opens_at|date:"D M j, g:i A" }}</td>
+        <td>{{ drop.closes_at|date:"D M j, g:i A" }}</td>
+        <td>{{ drop.order_count }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4">No drops yet. Create one under Bakery → Drops.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

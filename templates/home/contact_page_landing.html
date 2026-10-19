@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags wagtailimages_tags %}
+{% block content %}
+{% with fs=settings.home.FarmSettings %}
+<section class="hero">
+  {% if page.hero_image %}{% image page.hero_image width-1800 format-webp class="hero-media" %}{% else %}<img class="hero-media" src="{% static 'img/fed-cove-farm-01.jpg' %}" alt="Fed Cove Farm and Nursery">{% endif %}
+  <div class="hero-copy hero-copy--top">
+    <div class="hero-card hero-card--form">
+      <p class="eyebrow">Message sent</p>
+      <h1>Thank you!</h1>
+      {% if page.thank_you_text %}{{ page.thank_you_text|richtext }}{% else %}<p>We&rsquo;ll get back to you soon.</p>{% endif %}
+      <p style="margin-top:20px;"><a class="btn btn-outline" href="/">Back to home</a></p>
+    </div>
+    {% include "includes/reach_card.html" %}
+  </div>
+</section>
+{% endwith %}
+{% endblock %}

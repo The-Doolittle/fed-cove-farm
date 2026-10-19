@@ -1,0 +1,15 @@
+Hi {{ order.name }},
+
+Thanks for your order from Fed Cove Farm! Here's what you reserved from "{{ order.drop.title }}":
+
+{% for line in order.lines.all %}  {{ line.quantity }} x {{ line.name }}  ${{ line.line_total }}
+{% endfor %}
+  Total: ${{ order.total }} (pay at pickup)
+{% if order.slot %}
+Pickup: {{ order.slot.label }}{% endif %}
+{% if order.drop.pickup_info %}{{ order.drop.pickup_info }}
+{% endif %}
+Your order: {{ base_url }}{% url 'order_confirmation' order.code %}
+
+See you soon,
+Fed Cove Farm and Nursery

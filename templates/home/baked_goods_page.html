@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+{% block content %}
+{% include "includes/hero.html" %}
+{% order_link as order %}
+
+{% if drop %}
+<section id="order">
+  <div class="wrap">
+    <div class="drop drop--{{ drop.status }}">
+      <div class="drop__head">
+        <div>
+          <p class="eyebrow">This Week&rsquo;s Drop</p>
+          <h2 class="section-title">{{ drop.title }}</h2>
+        </div>
+        <span class="drop__badge">
+          {% if drop.status == "open" %}Open &middot; closes {{ drop.closes_at|date:"D M j, g:i A"|cut:":00" }}
+          {% elif drop.status == "upcoming" %}Opens {{ drop.opens_at|date:"D M j, g:i A"|cut:":00" }}
+          {% else %}Closed{% endif %}
+        </span>
+      </div>
+      {% if drop.description %}<p class="lede">{{ drop.description|linebreaksbr }}</p>{% endif %}
+      {% if drop.pickup_info %}<p class="drop__pickup"><strong>Pickup:</strong> {{ drop.pickup_info|linebreaksbr }}</p>{% endif %}
+
+      {% if settings.home.FarmSettings.onsite_ordering and drop.is_open %}
+        <form class="order-form" method="post" action="#order" data-order-form novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="drop" value="{{ drop.pk }}">
+          {% if order_errors.form %}<p class="form-error form-error--banner">{{ order_errors.form }}</p>{% endif %}
+          {% if order_errors.no_items %}<p class="form-error form-error--banner">{{ order_errors.no_items }}</p>{% endif %}
+          <ul class="drop-items">
+            {% for row in drop_rows %}
+            <li class="drop-item{% if row.remaining == 0 %} is-soldout{% endif %}">
+              {% if row.item.product.image %}{% image row.item.product.image fill-160x160 format-webp class="drop-item__img" loading="lazy" %}{% endif %}
+              <div class="drop-item__body">
+                <strong>{{ row.item.product.name }}</strong>
+                {% if row.item.product.description %}<span>{{ row.item.product.description }}</span>{% endif %}
+                <span class="drop-item__meta">${{ row.item.unit_price }}{% if row.remaining == 0 %} &middot; Sold out{% elif row.remaining != None and row.remaining <= 5 %} &middot; Only {{ row.remaining }} left{% endif %}</span>
+                {% if row.error %}<span class="form-error">{{ row.error }}</span>{% endif %}
+              </div>
+              <label class="drop-item__qty">
+                <span class="visually-hidden">Quantity of {{ row.item.product.name }}</span>
+                <input type="number" name="{{ row.field }}" min="0" max="{{ row.max }}" step="1" inputmode="numeric"
+                       value="{{ row.value }}" placeholder="0" data-price="{{ row.item.unit_price }}"{% if row.remaining == 0 %} disabled{% endif %}>
+              </label>
+            </li>
+            {% endfor %}
+          </ul>
+
+          {% if drop_slots %}
+          <fieldset class="order-slots">
+            <legend>Pickup</legend>
+            {% for s in drop_slots %}
+            <label class="slot-option{% if s.remaining == 0 %} is-full{% endif %}">
+              <input type="radio" name="slot" value="{{ s.slot.pk }}" required{% if s.remaining == 0 %} disabled{% endif %}{% if s.checked %} checked{% endif %}>
+              <span>{{ s.slot.label }}{% if s.remaining == 0 %} — full{% endif %}</span>
+            </label>
+            {% endfor %}
+            {% if order_errors.slot %}<p class="form-error">{{ order_errors.slot }}</p>{% endif %}
+          </fieldset>
+          {% endif %}
+
+          <div class="order-contact">
+            <div class="form-field">
+              <label for="o-name">Name</label>
+              <input id="o-name" name="name" autocomplete="name" required value="{{ order_data.name|default:'' }}">
+              {% if order_errors.name %}<p class="form-error">{{ order_errors.name }}</p>{% endif %}
+            </div>
+            <div class="form-field">
+              <label for="o-email">Email</label>
+              <input id="o-email" type="email" name="email" autocomplete="email" required value="{{ order_data.email|default:'' }}">
+              {% if order_errors.email %}<p class="form-error">{{ order_errors.email }}</p>{% endif %}
+            </div>
+            <div class="form-field">
+              <label for="o-phone">Phone (optional)</label>
+              <input id="o-phone" type="tel" name="phone" autocomplete="tel" value="{{ order_data.phone|default:'' }}">
+            </div>
+            <div class="form-field">
+              <label for="o-note">Note (optional)</label>
+              <input id="o-note" name="note" value="{{ order_data.note|default:'' }}" placeholder="Allergies, sliced, etc.">
+            </div>
+          </div>
+          <div class="order-submit">
+            <p class="order-total">Total <strong data-order-total>$0.00</strong> <span>&middot; pay at pickup</span></p>
+            <button class="btn" type="submit">Reserve my order</button>
+          </div>
+        </form>
+      {% else %}
+        <ul class="drop-items drop-items--preview">
+          {% for row in drop_rows %}
+          <li class="drop-item{% if row.remaining == 0 %} is-soldout{% endif %}">
+            {% if row.item.product.image %}{% image row.item.product.image fill-160x160 format-webp class="drop-item__img" loading="lazy" %}{% endif %}
+            <div class="drop-item__body">
+              <strong>{{ row.item.product.name }}</strong>
+              <span class="drop-item__meta">${{ row.item.unit_price }}{% if row.remaining == 0 %} &middot; Sold out{% endif %}</span>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% if order.external and drop.status != "closed" %}
+          <a class="btn btn--arrow" href="{{ order.url }}" target="_blank" rel="noopener"><span>{{ order.label }}</span><span aria-hidden="true">&rarr;</span></a>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">{{ page.menu_eyebrow }}</p>
+      <h2 class="section-title">{{ page.menu_title }}</h2>
+      {% if page.menu_text %}<p class="lede">{{ page.menu_text }}</p>{% endif %}
+    </div>
+    <div class="menu-grid">
+      {% for item in menu_items %}
+      <div class="menu-item-card">
+        {% if item.image %}{% image item.image fill-800x600 format-webp class="menu-item-card__img" loading="lazy" %}{% endif %}
+        <div class="menu-item-card__body">
+          {% if item.label %}<span class="menu-label">{{ item.label }}</span>{% endif %}
+          <strong>{{ item.name }}</strong>
+          {% if item.description %}<p>{{ item.description }}</p>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if order.external %}
+    <div style="margin-top:24px;">
+      <a class="btn btn-outline" href="{{ order.url }}" target="_blank" rel="noopener">{{ order.label }}</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% if reviews %}
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">{{ page.reviews_eyebrow }}</p>
+      <h2 class="section-title">{{ page.reviews_title }}</h2>
+    </div>
+    <div class="testimonial-carousel" data-autorotate="6000">
+      <div class="testimonial-track">
+        {% for review in reviews %}
+        <div class="testimonial-card" role="group" aria-roledescription="slide">
+          <p class="testimonial-stars" aria-label="{{ review.stars }} out of 5 stars">{{ review.star_string }}</p>
+          <p class="testimonial-quote">&ldquo;{{ review.quote }}&rdquo;</p>
+          <p class="testimonial-attr">{{ review.name }}{% if review.detail %} <span>&middot; {{ review.detail }}</span>{% endif %}</p>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="testimonial-dots">
+        {% for review in reviews %}<button class="testimonial-dot" data-index="{{ forloop.counter0 }}" aria-label="Show review {{ forloop.counter }}"></button>{% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

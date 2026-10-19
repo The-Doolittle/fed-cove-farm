@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Order confirmed{% endblock %}
+{% block content %}
+<section>
+  <div class="wrap">
+    <div class="drop confirmation">
+      <p class="eyebrow">Order {{ order.short_code }}</p>
+      <h1 class="section-title">Thanks, {{ order.name }} — you&rsquo;re all set.</h1>
+      <p class="lede">We&rsquo;ve emailed a copy to {{ order.email }}. Payment is taken at pickup.</p>
+      <table class="order-table">
+        <tbody>
+          {% for line in order.lines.all %}
+          <tr><td>{{ line.quantity }} &times; {{ line.name }}</td><td>${{ line.line_total }}</td></tr>
+          {% endfor %}
+        </tbody>
+        <tfoot><tr><th>Total</th><th>${{ order.total }}</th></tr></tfoot>
+      </table>
+      {% if order.slot %}<p><strong>Pickup:</strong> {{ order.slot.label }}</p>{% endif %}
+      {% if order.drop.pickup_info %}<p>{{ order.drop.pickup_info|linebreaksbr }}</p>{% endif %}
+      {% if order.status == "cancelled" %}<p class="form-error form-error--banner">This order was cancelled.</p>{% endif %}
+      <p style="margin-top:24px;"><a class="btn btn-outline" href="/">Back to home</a></p>
+    </div>
+  </div>
+</section>
+{% endblock %}

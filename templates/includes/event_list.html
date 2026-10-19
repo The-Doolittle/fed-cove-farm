@@ -1,0 +1,24 @@
+{% if events %}
+<ol class="event-list">
+  {% for event in events %}
+  <li class="event-item">
+    <div class="event-date" aria-hidden="true">
+      <span class="event-date__month">{{ event.start|date:"M" }}</span>
+      <span class="event-date__day">{{ event.start|date:"j" }}</span>
+      <span class="event-date__dow">{{ event.start|date:"D" }}</span>
+    </div>
+    <div class="event-body">
+      <h3>{{ event.title }}</h3>
+      <p class="event-when">
+        {{ event.start|date:"l, F j" }}{% if not event.all_day %} &middot; {{ event.start|date:"g:i A"|cut:":00" }}&ndash;{{ event.end|date:"g:i A"|cut:":00" }}{% endif %}
+      </p>
+      {% if event.location %}<p class="event-where"><a href="https://www.google.com/maps/search/?api=1&amp;query={{ event.location|urlencode }}" target="_blank" rel="noopener">{{ event.location }}</a></p>{% endif %}
+      {% if event.description %}<p class="event-desc">{{ event.description|linebreaksbr }}</p>{% endif %}
+      <a class="event-add" href="{{ event.google_add_url }}" target="_blank" rel="noopener">+ Add to my calendar</a>
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+{% else %}
+<p class="event-empty">{{ empty }}</p>
+{% endif %}

@@ -1,0 +1,31 @@
+{% load site_tags %}{% order_link as order %}
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Say Hello</p>
+      <h2 class="section-title">Find us online</h2>
+      {% if page.social_text %}<p class="lede">{{ page.social_text }}</p>{% endif %}
+    </div>
+    <div class="grid-4 grid-3">
+      {% if fs.facebook_url %}
+      <div class="follow-card">
+        <h3>Facebook</h3>
+        <p>Message us or follow along for weekly market updates.</p>
+        <a class="btn" href="{{ fs.facebook_url }}" target="_blank" rel="noopener">Visit our page</a>
+      </div>
+      {% endif %}
+      {% if fs.instagram_url %}
+      <div class="follow-card">
+        <h3>Instagram</h3>
+        <p>Photos from the greenhouse, the market table, and the kitchen.</p>
+        <a class="btn" href="{{ fs.instagram_url }}" target="_blank" rel="noopener">{{ fs.instagram_handle|default:"Instagram" }}</a>
+      </div>
+      {% endif %}
+      <div class="follow-card">
+        <h3>Order Ahead</h3>
+        <p>Reserve baked goods before market day.</p>
+        <a class="btn" href="{{ order.url }}"{% if order.external %} target="_blank" rel="noopener"{% endif %}>{{ order.label }}</a>
+      </div>
+    </div>
+  </div>
+</section>
