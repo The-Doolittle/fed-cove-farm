@@ -1,0 +1,79 @@
+<section id="order" class="hp">
+  <div class="wrap">
+  {% if not hotplate %}
+    {# Never fetched (or Hotplate unreachable since setup): still give people a way to order. #}
+    <div class="hp-empty">
+      <p class="eyebrow">Order Ahead</p>
+      <h2 class="section-title">Our drops are on Hotplate</h2>
+      <p class="lede">See what&rsquo;s baking this week and reserve yours for pickup.</p>
+      <a class="btn btn--arrow" href="{{ hotplate_url }}" target="_blank" rel="noopener"><span>Shop on Hotplate</span><span aria-hidden="true">&rarr;</span></a>
+    </div>
+  {% else %}
+    {% for drop in hotplate.live %}
+    <article class="hp-drop hp-drop--{{ drop.state }}">
+      <div class="hp-drop__head">
+        {% if drop.image %}<img class="hp-drop__cover" src="{{ drop.image }}" alt="" loading="lazy">{% endif %}
+        <div class="hp-drop__info">
+          <p class="eyebrow">{% if drop.state == "upcoming" %}Coming Up{% else %}This Week&rsquo;s Drop{% endif %}</p>
+          <h2 class="section-title">{{ drop.title }}</h2>
+          <p class="hp-badge">
+            {% if drop.state == "open" %}Ordering open{% if drop.cutoff %} &middot; until {{ drop.cutoff|date:"D M j, g:i A"|cut:":00" }}{% endif %}
+            {% elif drop.state == "upcoming" %}{% if drop.open_time_hidden or not drop.go_live %}Opening soon{% else %}Orders open {{ drop.go_live|date:"D M j, g:i A"|cut:":00" }}{% endif %}
+            {% else %}Ordering closed{% endif %}
+          </p>
+          {% if drop.description %}<p class="hp-drop__desc">{{ drop.description|linebreaksbr }}</p>{% endif %}
+          {% if drop.slots %}
+          <ul class="hp-slots" aria-label="Pickup">
+            {% for slot in drop.slots %}<li><strong>{{ slot.date }}</strong> {{ slot.time }}{% if slot.location %} &middot; {{ slot.location }}{% endif %}</li>{% endfor %}
+          </ul>
+          {% endif %}
+          <a class="btn btn--arrow" href="{{ drop.url }}" target="_blank" rel="noopener">
+            <span>{% if drop.state == "upcoming" %}See it on Hotplate{% else %}Order on Hotplate{% endif %}</span><span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </div>
+      {% if drop.sections %}
+        {% if hotplate.live|length > 1 %}
+          {# Several drops open at once: keep every drop's details visible, fold the menus. #}
+          <details class="hp-menu"{% if forloop.first %} open{% endif %}>
+            <summary>See the menu ({{ drop.item_count }} item{{ drop.item_count|pluralize }})</summary>
+            {% include "hotplate/sections.html" with link=drop.url %}
+          </details>
+        {% else %}
+          {% include "hotplate/sections.html" with link=drop.url %}
+        {% endif %}
+      {% elif drop.state == "upcoming" %}
+        <p class="notice">The menu will be posted when orders open.</p>
+      {% endif %}
+    </article>
+    {% empty %}
+    <div class="hp-empty">
+      <p class="eyebrow">Order Ahead</p>
+      <h2 class="section-title">No drop open right now</h2>
+      <p class="lede">We post a new drop on Hotplate most weeks. Follow us there to get a text when the next one opens{% if hotplate.past %} &mdash; here&rsquo;s what was on our last menu{% endif %}.</p>
+      <a class="btn btn--arrow" href="{{ hotplate.storefront }}" target="_blank" rel="noopener"><span>Follow on Hotplate</span><span aria-hidden="true">&rarr;</span></a>
+    </div>
+    {% endfor %}
+
+    {% if hotplate.past %}
+    <div class="hp-past">
+      <h3 class="hp-past__title">{% if hotplate.live %}Recent drops{% else %}Recent menus{% endif %}</h3>
+      {% for drop in hotplate.past %}
+      <details class="hp-past__drop"{% if forloop.first and not hotplate.live %} open{% endif %}>
+        <summary>
+          {% if drop.image %}<img src="{{ drop.image }}" alt="" loading="lazy" width="120" height="60">{% endif %}
+          <span class="hp-past__label">
+            <strong>{{ drop.title }}</strong>
+            <span>{% if drop.pickup_upcoming %}Orders closed &middot; pickup {% else %}Picked up {% endif %}{% if drop.slots %}{{ drop.slots.0.date }}{% elif drop.last_pickup %}{{ drop.last_pickup|date:"D, M j" }}{% endif %} &middot; {{ drop.item_count }} item{{ drop.item_count|pluralize }}</span>
+          </span>
+        </summary>
+        {% if drop.description %}<p class="hp-drop__desc">{{ drop.description|linebreaksbr }}</p>{% endif %}
+        {% include "hotplate/sections.html" with link=hotplate.storefront past=True %}
+      </details>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% if hotplate.stale %}<p class="notice">Menu last updated {{ hotplate.fetched_at|timesince }} ago &mdash; check Hotplate for what&rsquo;s available right now.</p>{% endif %}
+  {% endif %}
+  </div>
+</section>

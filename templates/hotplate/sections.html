@@ -1,0 +1,6 @@
+{% for section in drop.sections %}
+  {% if drop.sections|length > 1 %}<h3 class="hp-section">{{ section.title }}</h3>{% endif %}
+  <div class="hp-grid">
+    {% for item in section.items %}{% include "hotplate/item.html" %}{% endfor %}
+  </div>
+{% endfor %}

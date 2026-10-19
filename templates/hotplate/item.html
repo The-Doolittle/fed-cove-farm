@@ -1,0 +1,18 @@
+{% load hotplate_tags %}
+<article class="hp-item{% if item.sold_out %} is-soldout{% endif %}">
+  <a class="hp-item__link" href="{{ link }}" target="_blank" rel="noopener" aria-label="{{ item.title }}{% if not past %} — order on Hotplate{% endif %}">
+    {% if item.image %}<img class="hp-item__img" src="{{ item.image }}" alt="" loading="lazy" width="600" height="450">{% else %}<span class="hp-item__img hp-item__img--none" aria-hidden="true"></span>{% endif %}
+    {% if item.sold_out %}<span class="hp-flag">Sold out</span>{% elif item.low %}<span class="hp-flag hp-flag--low">Only {{ item.remaining }} left</span>{% endif %}
+  </a>
+  <div class="hp-item__body">
+    <div class="hp-item__top">
+      <h4>{{ item.title }}</h4>
+      {% if item.price %}<span class="hp-item__price">{{ item.price|money }}</span>{% endif %}
+    </div>
+    {% if item.blurb %}<p>{{ item.blurb|linebreaksbr }}</p>{% endif %}
+    {% if item.options %}<p class="hp-item__opts">Options: {{ item.options|join:", " }}</p>{% endif %}
+    {% if item.details %}
+    <details class="hp-item__details"><summary>Ingredients &amp; allergens</summary><p>{{ item.details|linebreaksbr }}</p></details>
+    {% endif %}
+  </div>
+</article>

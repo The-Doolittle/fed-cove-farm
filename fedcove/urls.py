@@ -7,6 +7,7 @@ from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
 from events import views as event_views
+from hotplate import views as hotplate_views
 from orders import views as order_views
 
 from .api import api_router
@@ -17,6 +18,7 @@ urlpatterns = [
     path("documents/", include(wagtaildocs_urls)),
     path("api/v2/", api_router.urls),
     path("api/events/", event_views.events_json, name="events_json"),
+    path("api/hotplate/", hotplate_views.hotplate_json, name="hotplate_json"),
     path("api/drops/current/", order_views.current_drop_json, name="current_drop_json"),
     path("order/confirmation/<str:code>/", order_views.order_confirmation, name="order_confirmation"),
     # Uploaded images. Fine for a small site; put a CDN/web server in front later if traffic grows.

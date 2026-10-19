@@ -16,11 +16,11 @@ services:
       timeout: 5s
       retries: 3
 
-  # Pulls the Google Calendar into the site on an interval.
-  calendar-sync:
+  # Background jobs: Google Calendar pull + Hotplate menu refresh.
+  worker:
     image: fed-cove-farm
     env_file: .env
-    command: ["python", "manage.py", "sync_calendar", "--loop"]
+    command: ["python", "manage.py", "run_worker"]
     volumes:
       - ./data:/app/data
       - ./secrets:/app/secrets:ro

@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "home",
     "events",
     "orders",
+    "hotplate",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
     "wagtail.contrib.settings",
@@ -144,6 +145,7 @@ GOOGLE_CALENDAR_ID = env("GOOGLE_CALENDAR_ID")
 GOOGLE_SERVICE_ACCOUNT_FILE = env("GOOGLE_SERVICE_ACCOUNT_FILE")
 GOOGLE_CALENDAR_ICS_URL = env("GOOGLE_CALENDAR_ICS_URL")
 CALENDAR_SYNC_MINUTES = int(env("CALENDAR_SYNC_MINUTES", "10"))
+HOTPLATE_SYNC_MINUTES = int(env("HOTPLATE_SYNC_MINUTES", "5"))
 
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],

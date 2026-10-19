@@ -1015,3 +1015,98 @@ footer a{text-decoration:underline; text-underline-offset:2px;}
   .contact-form__footer .btn{width:100%; text-align:center;}
   .contact-form__footer p{width:100%; text-align:center;}
 }
+
+/* --- Hotplate menu (Baked Goods) --- */
+.hp-drop, .hp-empty{
+  background:var(--paper); border:1px solid var(--line); border-radius:4px;
+  padding:28px; box-shadow:0 16px 28px -24px rgba(37,54,31,0.38);
+}
+.hp-drop + .hp-drop{margin-top:24px;}
+.hp-empty{text-align:center; padding:40px 28px;}
+.hp-empty .lede{margin:12px auto 22px;}
+.hp-drop__head{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:28px; align-items:start; margin-bottom:8px;}
+.hp-drop__head:not(:has(.hp-drop__cover)){grid-template-columns:1fr;}
+.hp-drop__cover{width:100%; height:auto; max-height:520px; object-fit:contain; border-radius:4px;}
+.hp-drop__info .section-title{margin-bottom:10px;}
+.hp-badge{
+  display:inline-flex; margin:0 0 14px; padding:6px 12px; border-radius:999px;
+  background:rgba(196,146,46,0.14); color:var(--forest-soft);
+  font-size:0.72rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+}
+.hp-drop--open .hp-badge{background:var(--forest); color:var(--paper);}
+.hp-drop__desc{color:var(--forest-soft); margin:0 0 14px;}
+.hp-slots{list-style:none; margin:0 0 18px; padding:0; display:grid; gap:6px; font-size:0.92rem; color:var(--forest-soft);}
+.hp-slots li{padding-left:16px; position:relative;}
+.hp-slots li::before{content:""; position:absolute; left:0; top:0.6em; width:6px; height:6px; border-radius:50%; background:var(--moss);}
+.hp-slots strong{color:var(--forest); font-weight:600;}
+.hp-section{font-family:var(--font-display); font-weight:600; font-size:1.2rem; margin:28px 0 14px;}
+.hp-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:16px; margin-top:16px;}
+.hp-section + .hp-grid{margin-top:0;}
+.hp-item{background:var(--cream); border:1px solid var(--line); border-radius:4px; overflow:hidden; display:flex; flex-direction:column;}
+.hp-item__link{position:relative; display:block;}
+.hp-item__img{display:block; width:100%; aspect-ratio:4/3; object-fit:cover; background:rgba(108,133,86,0.12); transition:transform .2s ease;}
+.hp-item__link:hover .hp-item__img{transform:scale(1.02);}
+.hp-flag{
+  position:absolute; top:10px; left:10px; padding:5px 10px; border-radius:999px;
+  background:var(--forest); color:var(--paper); font-size:0.7rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+}
+.hp-flag--low{background:var(--gold); color:var(--forest);}
+.hp-item.is-soldout .hp-item__img{filter:grayscale(1); opacity:0.55;}
+.hp-item.is-soldout .hp-item__body{opacity:0.6;}
+.hp-item__body{padding:14px 16px 16px; display:flex; flex-direction:column; gap:6px; flex:1;}
+.hp-item__top{display:flex; align-items:baseline; justify-content:space-between; gap:10px;}
+.hp-item__top h4{margin:0; font-family:var(--font-display); font-weight:500; font-style:italic; font-size:1.1rem; line-height:1.25;}
+.hp-item__price{font-weight:700; white-space:nowrap;}
+.hp-item__body p{margin:0; font-size:0.88rem; color:var(--forest-soft);}
+.hp-item__opts{font-size:0.8rem !important; font-weight:600;}
+.hp-item__details{margin-top:auto; font-size:0.8rem; color:var(--forest-soft);}
+.hp-item__details summary{cursor:pointer; list-style-position:inside; font-weight:600; color:var(--moss); padding-top:4px;}
+.hp-item__details p{margin-top:6px; font-size:0.8rem;}
+
+.hp-past{margin-top:36px;}
+.hp-past__title{font-family:var(--font-display); font-weight:600; font-size:1.3rem; margin:0 0 12px;}
+.hp-past__drop{background:var(--paper); border:1px solid var(--line); border-radius:4px; padding:0 18px; margin-bottom:10px;}
+.hp-past__drop[open]{padding-bottom:18px;}
+.hp-past__drop > summary{display:flex; align-items:center; gap:14px; padding:14px 0; cursor:pointer; list-style:none;}
+.hp-past__drop > summary::-webkit-details-marker{display:none;}
+.hp-past__drop > summary::after{content:"+"; margin-left:auto; font-size:1.4rem; line-height:1; color:var(--moss);}
+.hp-past__drop[open] > summary::after{content:"\2212";}
+.hp-past__drop > summary img{width:84px; height:42px; object-fit:cover; border-radius:3px; flex:0 0 auto;}
+.hp-past__label{display:flex; flex-direction:column; min-width:0;}
+.hp-past__label strong{font-family:var(--font-display); font-weight:600; font-size:1.05rem;}
+.hp-past__label span{font-size:0.86rem; color:var(--forest-soft);}
+
+@media (max-width:820px){
+  .hp-drop__head{grid-template-columns:1fr; gap:18px;}
+}
+@media (max-width:640px){
+  .hp-drop, .hp-empty{padding:20px 16px;}
+  .hp-grid{grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px;}
+  .hp-item__body{padding:10px 12px 12px;}
+  .hp-item__top{flex-direction:column; gap:2px;}
+  .hp-item__top h4{font-size:1rem;}
+  .hp-item__body > p:not(.hp-item__opts){display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
+  .hp-drop .btn--arrow{width:100%;}
+}
+
+/* --- "Drop is open" strip on the home page --- */
+.drop-banner{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  margin-top:24px; padding:14px 20px; border-radius:4px;
+  background:var(--forest); color:var(--paper); text-decoration:none;
+}
+.drop-banner strong{font-family:var(--font-display); font-style:italic; font-weight:500;}
+.drop-banner__dot{width:10px; height:10px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 4px rgba(196,146,46,0.3); flex:0 0 auto;}
+.drop-banner__cta{margin-left:auto; font-weight:600; color:var(--gold);}
+@media (prefers-reduced-motion:no-preference){
+  .drop-banner__dot{animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{50%{box-shadow:0 0 0 7px rgba(196,146,46,0.08);}}
+}
+.hp-menu{margin-top:18px; border-top:1px solid var(--line);}
+.hp-menu > summary{
+  cursor:pointer; list-style:none; padding:16px 0 4px; font-weight:600; color:var(--forest);
+  display:flex; align-items:center; gap:8px;
+}
+.hp-menu > summary::-webkit-details-marker{display:none;}
+.hp-menu > summary::after{content:"+"; font-size:1.3rem; line-height:1; color:var(--moss);}
+.hp-menu[open] > summary::after{content:"\2212";}

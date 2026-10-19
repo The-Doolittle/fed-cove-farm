@@ -4,6 +4,8 @@
 {% include "includes/hero.html" %}
 {% order_link as order %}
 
+{% if ordering_mode == "hotplate" %}{% include "hotplate/menu.html" %}{% endif %}
+
 {% if drop %}
 <section id="order">
   <div class="wrap">
@@ -22,7 +24,7 @@
       {% if drop.description %}<p class="lede">{{ drop.description|linebreaksbr }}</p>{% endif %}
       {% if drop.pickup_info %}<p class="drop__pickup"><strong>Pickup:</strong> {{ drop.pickup_info|linebreaksbr }}</p>{% endif %}
 
-      {% if settings.home.FarmSettings.onsite_ordering and drop.is_open %}
+      {% if drop.is_open %}
         <form class="order-form" method="post" action="#order" data-order-form novalidate>
           {% csrf_token %}
           <input type="hidden" name="drop" value="{{ drop.pk }}">

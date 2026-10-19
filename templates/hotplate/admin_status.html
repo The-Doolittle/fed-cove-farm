@@ -1,0 +1,39 @@
+{% extends "wagtailadmin/generic/base.html" %}
+{% block titletag %}Hotplate{% endblock %}
+{% block main_header %}{% include "wagtailadmin/shared/header.html" with title="Hotplate" icon="download" %}{% endblock %}
+{% block main_content %}
+<div class="nice-padding">
+  {% if mode != "hotplate" %}
+  <p class="help-block help-warning">Ordering isn't set to Hotplate (Settings → Farm settings), so the Hotplate menu isn't shown on the site and isn't refreshed automatically.</p>
+  {% endif %}
+  <p>
+    The Baked Goods page shows the drops from <a href="https://www.hotplate.com/{{ chef }}" target="_blank" rel="noopener">hotplate.com/{{ chef }}</a>.
+    New drops, menu changes and sold-out items appear here automatically within a few minutes &mdash; just set them up on Hotplate as usual.
+    Customers check out on Hotplate.
+  </p>
+  <p>
+    {% if stored.fetched_at %}Last updated <strong>{{ stored.fetched_at|timesince }} ago</strong> ({{ stored.fetched_at|date:"M j, g:i A" }}).{% else %}Not fetched yet.{% endif %}
+    {% if stored.last_error %}<br><strong>Last attempt failed</strong> ({{ stored.last_attempt_at|date:"M j, g:i A" }}): {{ stored.last_error }}. The site keeps showing the last good menu.{% endif %}
+  </p>
+  <form method="post" action="{% url 'hotplate_refresh' %}">{% csrf_token %}<button class="button" type="submit">Refresh now</button></form>
+
+  {% if menu %}
+  <h2 style="margin-top:2em;">Open or upcoming drops</h2>
+  <table class="listing">
+    <thead><tr><th>Drop</th><th>Status</th><th>Orders close</th><th>Items</th></tr></thead>
+    <tbody>
+    {% for d in menu.live %}<tr><td><a href="{{ d.url }}" target="_blank" rel="noopener">{{ d.title }}</a></td><td>{{ d.state }}</td><td>{{ d.cutoff|date:"D M j, g:i A" }}</td><td>{{ d.item_count }}</td></tr>
+    {% empty %}<tr><td colspan="4">None right now.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  <h2 style="margin-top:2em;">Recent drops shown on the site</h2>
+  <table class="listing">
+    <thead><tr><th>Drop</th><th>Pickup</th><th>Items</th></tr></thead>
+    <tbody>
+    {% for d in menu.past %}<tr><td><a href="{{ d.url }}" target="_blank" rel="noopener">{{ d.title }}</a></td><td>{{ d.slots.0.date|default:"" }}</td><td>{{ d.item_count }}</td></tr>
+    {% empty %}<tr><td colspan="3">None.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+{% endblock %}

@@ -4,6 +4,17 @@
 {% block content %}
 {% include "includes/hero.html" with hero_video="video/top-down-flyover.mp4" %}
 
+{% if drop_banner %}
+{% order_link as order %}
+<div class="wrap">
+  <a class="drop-banner" href="{{ order.url }}">
+    <span class="drop-banner__dot" aria-hidden="true"></span>
+    <span><strong>{{ drop_banner.title }}</strong> is open for orders{% if drop_banner.cutoff %} until {{ drop_banner.cutoff|date:"l, M j \a\t g:i A"|cut:":00" }}{% endif %}</span>
+    <span class="drop-banner__cta">See the menu &rarr;</span>
+  </a>
+</div>
+{% endif %}
+
 <section>
   <div class="wrap">
     <div class="section-head">

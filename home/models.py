@@ -23,10 +23,19 @@ class FarmSettings(BaseSiteSetting):
     instagram_url = models.URLField(blank=True, default="https://www.instagram.com/fedcove_farm.nursery/")
     instagram_handle = models.CharField(max_length=60, blank=True, default="@fedcove_farm.nursery")
 
-    onsite_ordering = models.BooleanField(
-        "Take orders on this site",
-        default=False,
-        help_text="On: customers order from the Baked Goods page. Off: order buttons go to the link below.",
+    ORDERING_HOTPLATE = "hotplate"
+    ORDERING_SITE = "site"
+    ORDERING_LINK = "link"
+    ORDERING_CHOICES = [
+        (ORDERING_HOTPLATE, "Show our Hotplate drops on the site (checkout on Hotplate)"),
+        (ORDERING_SITE, "Take orders on this site (Bakery → Drops)"),
+        (ORDERING_LINK, "Just link to the ordering page below"),
+    ]
+    ordering_mode = models.CharField("Ordering", max_length=10, choices=ORDERING_CHOICES, default=ORDERING_HOTPLATE)
+    hotplate_username = models.CharField(
+        max_length=80,
+        default="fedcovefarmandnursery",
+        help_text="The name in your Hotplate link: hotplate.com/<this>",
     )
     order_url = models.URLField(
         "Outside ordering link", blank=True, default="https://www.hotplate.com/fedcovefarmandnursery"
@@ -51,7 +60,12 @@ class FarmSettings(BaseSiteSetting):
             heading="Social",
         ),
         MultiFieldPanel(
-            [FieldPanel("onsite_ordering"), FieldPanel("order_url"), FieldPanel("order_label")],
+            [
+                FieldPanel("ordering_mode"),
+                FieldPanel("hotplate_username"),
+                FieldPanel("order_url"),
+                FieldPanel("order_label"),
+            ],
             heading="Ordering",
         ),
         FieldPanel("more_page"),
@@ -59,6 +73,10 @@ class FarmSettings(BaseSiteSetting):
 
     class Meta:
         verbose_name = "Farm settings"
+
+    @property
+    def hotplate_url(self):
+        return f"https://www.hotplate.com/{self.hotplate_username}"
 
     @property
     def phone_href(self):
@@ -151,6 +169,23 @@ class BodyBlock(blocks.StreamBlock):
     )
 
 
+def open_drop_banner(request):
+    """{'title', 'cutoff'} for a drop that's taking orders right now, whichever system is in use."""
+    farm = FarmSettings.for_request(request)
+    if farm.ordering_mode == FarmSettings.ORDERING_HOTPLATE:
+        from hotplate.feed import present
+
+        menu = present(farm.hotplate_username)
+        drop = next((d for d in (menu or {}).get("live", []) if d["state"] == "open"), None)
+        return {"title": drop["title"], "cutoff": drop["cutoff"]} if drop else None
+    if farm.ordering_mode == FarmSettings.ORDERING_SITE:
+        from orders.models import Drop
+
+        drop = Drop.current()
+        return {"title": drop.title, "cutoff": drop.closes_at} if drop and drop.is_open else None
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Pages
 
@@ -211,6 +246,7 @@ class HomePage(HeroFields, Page):
         from events.models import Event
 
         context = super().get_context(request, *args, **kwargs)
+        context["drop_banner"] = open_drop_banner(request)
         context["upcoming_events"] = Event.upcoming()[:4]
         context["events_page"] = EventsPage.objects.live().first()
         return context
@@ -279,7 +315,15 @@ class BakedGoodsPage(HeroFields, Page):
         context = super().get_context(request, *args, **kwargs)
         context["menu_items"] = Product.objects.filter(show_on_menu=True).select_related("image")
         context["reviews"] = Review.objects.all()
-        drop = context["drop"] = Drop.current()
+        farm = FarmSettings.for_request(request)
+        context["ordering_mode"] = farm.ordering_mode
+        if farm.ordering_mode == FarmSettings.ORDERING_HOTPLATE:
+            from hotplate.feed import present
+
+            context["hotplate"] = present(farm.hotplate_username)
+            context["hotplate_url"] = farm.hotplate_url
+            return context
+        drop = context["drop"] = Drop.current() if farm.ordering_mode == FarmSettings.ORDERING_SITE else None
         if drop:
             data, errors = order_data or {}, order_errors or {}
             rows = []
@@ -305,7 +349,7 @@ class BakedGoodsPage(HeroFields, Page):
 
         from orders.ordering import place_order
 
-        if request.method == "POST" and FarmSettings.for_request(request).onsite_ordering:
+        if request.method == "POST" and FarmSettings.for_request(request).ordering_mode == FarmSettings.ORDERING_SITE:
             order, errors = place_order(request.POST.get("drop"), request.POST)
             if order:
                 return redirect("order_confirmation", code=order.code)

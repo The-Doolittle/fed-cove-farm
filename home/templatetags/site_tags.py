@@ -39,10 +39,10 @@ def more_link(context):
 
 @register.simple_tag(takes_context=True)
 def order_link(context):
-    """Where 'Order' buttons go: the on-site drop, or the outside ordering link (Hotplate)."""
+    """Where 'Order' buttons go: our Baked Goods menu (Hotplate or on-site drops), or the outside link."""
     request = context["request"]
     settings = FarmSettings.for_request(request)
-    if settings.onsite_ordering:
+    if settings.ordering_mode != FarmSettings.ORDERING_LINK:
         page = BakedGoodsPage.objects.live().first()
         if page:
             return {"url": page.get_url(request) + "#order", "label": "Order Now", "external": False}
