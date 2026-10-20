@@ -23,6 +23,8 @@ if not SECRET_KEY:
 DEBUG = env_bool("DJANGO_DEBUG")
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
+# Staging only: shows a "demo site" banner and tells search engines not to index it.
+DEMO_SITE = env_bool("DEMO_SITE")
 
 INSTALLED_APPS = [
     "home",
@@ -79,6 +81,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
+                "fedcove.context_processors.demo_site",
             ],
         },
     },

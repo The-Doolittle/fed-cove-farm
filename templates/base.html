@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}{% if page.seo_title %}{{ page.seo_title }}{% elif page and not page.is_root %}{{ page.title }}{% endif %}{% endblock %} | Fed Cove Farm and Nursery</title>
+  <title>{% if DEMO_SITE %}[DEMO] {% endif %}{% block title %}{% if page.seo_title %}{{ page.seo_title }}{% elif page and not page.is_root %}{{ page.title }}{% endif %}{% endblock %} | Fed Cove Farm and Nursery</title>
   {% firstof page.search_description "Fed Cove Farm and Nursery — eighth-generation growers in Cowee, NC offering sourdough, baked goods, and landscape perennials." as description %}
   <meta name="description" content="{{ description }}">
+  {% if DEMO_SITE %}<meta name="robots" content="noindex, nofollow">{% endif %}
   <link rel="icon" href="{% static 'img/fed-cove-icon.jpg' %}">
   <link rel="canonical" href="{{ request.build_absolute_uri }}">
   <meta property="og:type" content="website">
@@ -22,7 +23,8 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   {% block head_extra %}{% endblock %}
 </head>
-<body class="{% block body_class %}{% endblock %}">
+<body class="{% block body_class %}{% endblock %}{% if DEMO_SITE %} is-demo{% endif %}">
+  {% if DEMO_SITE %}<div class="demo-banner" role="note">DEMO SITE &mdash; not the real Fed Cove Farm. Orders and messages here aren&rsquo;t real. <a href="https://fedcove.farm">Go to fedcove.farm</a></div>{% endif %}
   {% wagtailuserbar %}
   {% menu_items as nav %}{% more_link as more %}
   <header class="site-header">
