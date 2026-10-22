@@ -28,3 +28,10 @@ services:
     depends_on:
       - web
     restart: unless-stopped
+    # Unhealthy if the job loop hasn't completed a pass in 10 minutes (hung job).
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os, time, sys; sys.exit(time.time() - os.path.getmtime('/tmp/worker-heartbeat') > 600)"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 2m

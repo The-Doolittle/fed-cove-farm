@@ -10,10 +10,13 @@ from events import views as event_views
 from hotplate import views as hotplate_views
 from orders import views as order_views
 
+from . import views
 from .api import api_router
 
 urlpatterns = [
     path("healthz", lambda request: HttpResponse("ok")),
+    path("robots.txt", views.robots_txt),
+    re_path(r"^img/(?P<path>.+)$", views.legacy_image),
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
     path("api/v2/", api_router.urls),

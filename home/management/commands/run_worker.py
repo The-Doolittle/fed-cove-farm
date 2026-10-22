@@ -1,5 +1,6 @@
 import logging
 import time
+from pathlib import Path
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -13,6 +14,9 @@ from social.feed import refresh_all as refresh_social
 from home.models import FarmSettings
 
 log = logging.getLogger(__name__)
+
+# Touched every loop; the container healthcheck fails if it goes stale.
+HEARTBEAT = Path("/tmp/worker-heartbeat")
 
 
 class Command(BaseCommand):
@@ -37,6 +41,7 @@ class Command(BaseCommand):
                     except Exception:
                         log.exception("%s job failed", name)
                     next_run[name] = time.monotonic() + delay
+            HEARTBEAT.touch()
             time.sleep(15)
 
     def calendar(self):
